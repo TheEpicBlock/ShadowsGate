@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "shadowsgate",
+  "version": "${version}",
+  "name": "${displayname}",
+  "description": "${description}",
+  "authors": [
+    {
+      "name": "TheEpicBlock",
+      "contact": { "homepage": "https://theepicblock.nl" }
+    }
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "icon": "assets/shadowsgate/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl"
+    ]
+  },
+  "mixins": [
+    "shadowsgate-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2"
+  }
+}

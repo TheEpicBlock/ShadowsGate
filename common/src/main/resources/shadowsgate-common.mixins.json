@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "nl.theepicblock.shadowsgate.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+  ],
+  "mixins": [
+    "ItemUsageContextAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

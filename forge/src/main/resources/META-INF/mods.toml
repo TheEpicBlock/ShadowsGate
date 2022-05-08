@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+issueTrackerURL = "https://github.com/TheEpicBlock/ShadowsGate/issues"
+license = "MIT"
+
+[[mods]]
+modId = "shadowsgate"
+version = "${version}"
+displayName = "${displayname}"
+displayURL = "https://github.com/TheEpicBlock/ShadowsGate"
+authors = "TheEpicBlock"
+description = "${description}"
+logoFile = "assets/shadowsgate/icon.png"
+
+[[dependencies.shadowsgate]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.shadowsgate]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"
