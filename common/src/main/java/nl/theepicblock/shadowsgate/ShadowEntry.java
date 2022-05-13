@@ -1,19 +1,21 @@
 package nl.theepicblock.shadowsgate;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Hand;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
+import nl.theepicblock.shadowsgate.mixin.ClientShadowEntriesDuck;
 
 public class ShadowEntry extends PersistentState {
-    public static final ShadowEntry UNASSIGNED_SHADOW_ENTRY = new ShadowEntry();
+    public static final ShadowEntry MISSING_ENTRY = new ShadowEntry();
     private ItemStack stack = ItemStack.EMPTY;
 
     public static ShadowEntry fromNbt(NbtCompound nbt) {
@@ -32,6 +34,27 @@ public class ShadowEntry extends PersistentState {
         stack.writeNbt(innerNbt);
         nbt.put("stack", innerNbt);
         return nbt;
+    }
+
+    public void write(PacketByteBuf buf) {
+        buf.writeItemStack(this.stack);
+    }
+
+    public static ShadowEntry read(PacketByteBuf buf) {
+        var entry = new ShadowEntry();
+        entry.stack = buf.readItemStack();
+        return entry;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static ShadowEntry getEntryClient(int id) {
+        var client = MinecraftClient.getInstance();
+        if (client.player != null) {
+            var entries = ((ClientShadowEntriesDuck)client.player.networkHandler).shadowsgate$getEntries();
+            return entries.getOrDefault(id, ShadowEntry.MISSING_ENTRY);
+        } else {
+            return ShadowEntry.MISSING_ENTRY;
+        }
     }
 
     public ItemStack getStack() {

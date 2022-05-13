@@ -1,26 +1,30 @@
 package nl.theepicblock.shadowsgate;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.NetworkSyncedItem;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.Packet;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import nl.theepicblock.shadowsgate.mixin.ClientShadowEntriesDuck;
 import nl.theepicblock.shadowsgate.mixin.ItemUsageContextAccessor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class ShadowItem extends Item {
+public class ShadowItem extends NetworkSyncedItem {
     public ShadowItem(Settings settings) {
         super(settings);
     }
@@ -34,22 +38,42 @@ public class ShadowItem extends Item {
 
     static ShadowEntry getOrCreateEntry(World world, ItemStack stack) {
         Objects.requireNonNull(world);
+        var index = getIndex(stack);
         if (world instanceof ServerWorld serverWorld) {
-            var index = getIndex(stack);
             if (index == -1) {
                 index = ShadowEntryCount.get(serverWorld.getServer().getOverworld().getPersistentStateManager()).getNextId();
                 stack.getOrCreateNbt().putInt("shadowindex", index);
             }
 
             return ShadowEntry.get(serverWorld.getServer().getOverworld().getPersistentStateManager(), index);
+        } else if (world.isClient) {
+            return ShadowEntry.getEntryClient(index);
         }
 
-        return ShadowEntry.UNASSIGNED_SHADOW_ENTRY; // TODO client shit
+        return ShadowEntry.MISSING_ENTRY; // TODO client shit
+    }
+
+    @Nullable
+    @Override
+    public Packet<?> createSyncPacket(ItemStack stack, World world, PlayerEntity player) {
+        var index = getIndex(stack);
+        if (index == -1) {
+            return null;
+        }
+        if (world instanceof ServerWorld serverWorld) {
+            var entry = ShadowEntry.get(serverWorld.getServer().getOverworld().getPersistentStateManager(), index);
+            return Networking.createPacket(index, entry);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
         var entry = getOrCreateEntry(player.getWorld(), stack);
+        if (entry == ShadowEntry.MISSING_ENTRY) {
+            return false;
+        }
         if (entry.isUninitialized() && slot.canTakePartial(player) && !otherStack.isEmpty()) {
             if (clickType == ClickType.RIGHT) {
                 entry.setStack(otherStack.split(1));

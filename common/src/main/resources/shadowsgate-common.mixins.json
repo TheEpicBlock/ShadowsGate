@@ -5,7 +5,8 @@
   "client": [
   ],
   "mixins": [
-    "ItemUsageContextAccessor"
+    "ItemUsageContextAccessor",
+    "MixinClientPlayNetworkHandler"
   ],
   "injectors": {
     "defaultRequire": 1
