@@ -19,8 +19,7 @@ public class NetworkingImpl {
         ClientPlayNetworking.registerGlobalReceiver(Networking.SYNC_ENTRY, (client, handler, buf, responseSender) -> {
             var id = buf.readVarInt();
             var entry = ShadowEntry.read(buf);
-
-            // TODO
+            Networking.onSyncPacket(id, entry);
         });
     }
 }

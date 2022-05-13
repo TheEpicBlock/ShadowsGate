@@ -1,14 +1,11 @@
 package nl.theepicblock.shadowsgate;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.architectury.injectables.annotations.PlatformOnly;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
-import nl.theepicblock.shadowsgate.mixin.ClientShadowEntriesDuck;
 
 public class Networking {
     public static final String PROTOCOL_VERSION = "1";

@@ -12,7 +12,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Hand;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
-import nl.theepicblock.shadowsgate.mixin.ClientShadowEntriesDuck;
 
 public class ShadowEntry extends PersistentState {
     public static final ShadowEntry MISSING_ENTRY = new ShadowEntry();
@@ -63,6 +62,7 @@ public class ShadowEntry extends PersistentState {
 
     public void setStack(ItemStack stack) {
         this.stack = stack;
+        this.markDirty();
     }
 
     public boolean isUninitialized() {

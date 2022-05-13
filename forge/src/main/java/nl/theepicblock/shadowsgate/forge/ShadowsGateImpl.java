@@ -11,7 +11,7 @@ import nl.theepicblock.shadowsgate.ShadowsGate;
 @Mod(ShadowsGate.MOD_ID)
 public class ShadowsGateImpl {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ShadowsGate.MOD_ID);
-    public static final RegistryObject<Item> SHADOW_ITEM = ITEMS.register("shadow_item", ShadowsGate.SHADOW_ITEM_SUPPLIER);
+    public static final RegistryObject<Item> SHADOW_ITEM = ITEMS.register("shadow_item", () -> new FShadowItem(ShadowsGate.SHADOW_ITEM_SETTINGS));
 
     public ShadowsGateImpl() {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());

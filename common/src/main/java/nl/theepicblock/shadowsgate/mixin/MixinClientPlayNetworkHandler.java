@@ -1,10 +1,9 @@
 package nl.theepicblock.shadowsgate.mixin;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import nl.theepicblock.shadowsgate.ClientShadowEntriesDuck;
 import nl.theepicblock.shadowsgate.ShadowEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

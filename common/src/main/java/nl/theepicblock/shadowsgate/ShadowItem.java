@@ -1,7 +1,6 @@
 package nl.theepicblock.shadowsgate;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
@@ -18,7 +17,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import nl.theepicblock.shadowsgate.mixin.ClientShadowEntriesDuck;
 import nl.theepicblock.shadowsgate.mixin.ItemUsageContextAccessor;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +27,14 @@ public class ShadowItem extends NetworkSyncedItem {
         super(settings);
     }
 
-    static int getIndex(ItemStack stack) {
+    public static int getIndex(ItemStack stack) {
         var nbt = stack.getNbt();
         if (nbt == null) return -1;
         if (!nbt.contains("shadowindex", NbtElement.NUMBER_TYPE)) return -1;
         return nbt.getInt("shadowindex");
     }
 
-    static ShadowEntry getOrCreateEntry(World world, ItemStack stack) {
+    public static ShadowEntry getOrCreateEntry(World world, ItemStack stack) {
         Objects.requireNonNull(world);
         var index = getIndex(stack);
         if (world instanceof ServerWorld serverWorld) {
@@ -50,7 +48,13 @@ public class ShadowItem extends NetworkSyncedItem {
             return ShadowEntry.getEntryClient(index);
         }
 
-        return ShadowEntry.MISSING_ENTRY; // TODO client shit
+        return ShadowEntry.MISSING_ENTRY;
+    }
+
+    public static ShadowEntry getClientEntry(ItemStack stack) {
+        var index = ShadowItem.getIndex(stack);
+        if (index == -1) return ShadowEntry.MISSING_ENTRY;
+        return ShadowEntry.getEntryClient(index);
     }
 
     @Nullable
@@ -67,6 +71,8 @@ public class ShadowItem extends NetworkSyncedItem {
             return null;
         }
     }
+
+
 
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {

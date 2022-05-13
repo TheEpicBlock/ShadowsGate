@@ -5,6 +5,8 @@
   "client": [
   ],
   "mixins": [
+    "ItemModelsMixin",
+    "ItemRendererMixin",
     "ItemUsageContextAccessor",
     "MixinClientPlayNetworkHandler"
   ],
