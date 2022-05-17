@@ -5,17 +5,33 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Hand;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 
-public class ShadowEntry extends PersistentState {
-    public static final ShadowEntry MISSING_ENTRY = new ShadowEntry();
+public class ShadowEntry extends PersistentState implements Inventory {
+    public static final ShadowEntry MISSING_ENTRY = new ShadowEntry(true);
     private ItemStack stack = ItemStack.EMPTY;
+    private final Slot fakeslot;
+
+
+    public ShadowEntry() {
+        this(false);
+    }
+
+    public ShadowEntry(boolean locked) {
+        if (locked) {
+            this.fakeslot = new CustomSlot(this, 0, 0, 0);
+        } else {
+            this.fakeslot = new CustomSlot(this, 0, 0, 0);
+        }
+    }
 
     public static ShadowEntry fromNbt(NbtCompound nbt) {
         var entry = new ShadowEntry();
@@ -54,6 +70,15 @@ public class ShadowEntry extends PersistentState {
         } else {
             return ShadowEntry.MISSING_ENTRY;
         }
+    }
+
+    public static boolean isValidStack(ItemStack stack) {
+        return stack.getItem() != ShadowsGate.getShadowItem();
+
+    }
+
+    public boolean canInsertStack(ItemStack stack) {
+        return isValidStack(stack) && ItemStack.canCombine(this.stack, stack);
     }
 
     public ItemStack getStack() {
@@ -131,5 +156,57 @@ public class ShadowEntry extends PersistentState {
     @FunctionalInterface
     public interface Funct<T> {
         T run();
+    }
+
+    // INVENTORY CODE
+
+    @Override
+    public int size() {
+        return 1;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.stack.isEmpty();
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+        if (slot == 0) {
+            return stack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        return slot == 0 && !this.stack.isEmpty() && amount > 0 ? this.stack.split(amount) : ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot) {
+        if (slot == 0) {
+            var stack = this.stack;
+            this.setStack(ItemStack.EMPTY);
+            return stack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        if (slot == 0) {
+            this.setStack(stack);
+        }
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return this != MISSING_ENTRY;
+    }
+
+    @Override
+    public void clear() {
+
     }
 }

@@ -77,20 +77,26 @@ public class ShadowItem extends NetworkSyncedItem {
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
         var entry = getOrCreateEntry(player.getWorld(), stack);
-        if (entry == ShadowEntry.MISSING_ENTRY) {
-            return false;
-        }
-        if (entry.isUninitialized() && slot.canTakePartial(player) && !otherStack.isEmpty()) {
-            if (clickType == ClickType.RIGHT) {
-                entry.setStack(otherStack.split(1));
-            } else {
-                cursorStackReference.set(ItemStack.EMPTY);
-                entry.setStack(otherStack);
+        if (entry == ShadowEntry.MISSING_ENTRY) return false;
+
+        if (otherStack.isEmpty()) {
+            if (slot.canTakePartial(player)) {
+                if (clickType == ClickType.RIGHT) {
+                    cursorStackReference.set(entry.removeStack(0, entry.getStack().getCount()/2));
+                }
             }
-            return true;
         } else {
-            return false;
+            if (entry.canInsertStack(otherStack) && slot.canTakePartial(player) && !otherStack.isEmpty()) {
+                if (clickType == ClickType.RIGHT) {
+                    entry.setStack(otherStack.split(1));
+                } else {
+                    cursorStackReference.set(ItemStack.EMPTY);
+                    entry.setStack(otherStack);
+                }
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
