@@ -35,6 +35,7 @@ public class ShadowItem extends NetworkSyncedItem {
     }
 
     public static ShadowEntry getOrCreateEntry(World world, ItemStack stack) {
+        // TODO maybe make sure this is a shadow item
         Objects.requireNonNull(world);
         var index = getIndex(stack);
         if (world instanceof ServerWorld serverWorld) {

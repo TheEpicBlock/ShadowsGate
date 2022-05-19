@@ -78,7 +78,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
     }
 
     public boolean canInsertStack(ItemStack stack) {
-        return isValidStack(stack) && ItemStack.canCombine(this.stack, stack);
+        return isValidStack(stack) && (ItemStack.canCombine(this.stack, stack) || this.isEmpty());
     }
 
     public ItemStack getStack() {

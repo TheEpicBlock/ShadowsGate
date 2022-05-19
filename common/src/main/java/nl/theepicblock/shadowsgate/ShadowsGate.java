@@ -1,13 +1,14 @@
 package nl.theepicblock.shadowsgate;
 
-import com.google.common.base.Suppliers;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.block.dispenser.DispenserBehavior;
 import net.minecraft.item.Item;
+import nl.theepicblock.shadowsgate.mixin.DispenserBlockAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Supplier;
 
 public class ShadowsGate {
     public static final String MOD_ID = "shadowsgate";
@@ -17,6 +18,16 @@ public class ShadowsGate {
 
     public static void init() {
         Networking.init();
+        DispenserBlock.registerBehavior(getShadowItem(), (pointer, stack) -> {
+            var entry = ShadowItem.getOrCreateEntry(pointer.getWorld(), stack);
+            if (entry == ShadowEntry.MISSING_ENTRY) return stack;
+            var behaviour = ((DispenserBlockAccessor)Blocks.DISPENSER).callGetBehaviorForItem(entry.getStack());
+            if (behaviour != DispenserBehavior.NOOP) {
+                entry.setStack(behaviour.dispense(pointer, entry.getStack()));
+                entry.markDirty();
+            }
+            return stack; // Always keep the stack the same to preserve the shadow item
+        });
     }
 
     @ExpectPlatform
