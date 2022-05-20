@@ -94,6 +94,14 @@ public class ShadowEntry extends PersistentState implements Inventory {
         return this.stack.isEmpty();
     }
 
+    public <T> T executeActiveHand(PlayerEntity player, ItemStack originalShadowItem, Funct<T> r) {
+        if (player.getStackInHand(player.getActiveHand()) == originalShadowItem) { // Sanity check
+            return execute(player, player.getActiveHand(), r);
+        } else {
+            return r.run();
+        }
+    }
+
     public <T> T execute(PlayerEntity player, Hand hand, Funct<T> r) {
         return switch (hand) {
             case MAIN_HAND -> execute(player, r);
@@ -107,8 +115,12 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
                 inv.offHand.set(0, this.stack);
                 var ret = r.run();
+                var newItem = inv.offHand.get(0);
                 inv.offHand.set(0, original);
-                this.markDirty();
+                if (newItem != this.stack) {
+                    this.setStack(newItem);
+                    this.markDirty();
+                }
 
                 yield ret;
             }
@@ -128,8 +140,12 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
         inv.main.set(inv.selectedSlot, this.stack);
         var v = r.run();
+        var newItem = inv.main.get(inv.selectedSlot);
         inv.main.set(inv.selectedSlot, original);
-        this.markDirty();
+        if (newItem != this.stack) {
+            this.setStack(newItem);
+            this.markDirty();
+        }
 
         return v;
     }
@@ -142,8 +158,12 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
         player.getInventory().setStack(slot, this.stack);
         var v = r.run();
+        var newItem = player.getInventory().getStack(slot);
         player.getInventory().setStack(slot, original);
-        this.markDirty();
+        if (newItem != this.stack) {
+            this.setStack(newItem);
+            this.markDirty();
+        }
 
         return v;
     }

@@ -1,26 +1,36 @@
 package nl.theepicblock.shadowsgate;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.NetworkSyncedItem;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.Packet;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.Main;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ClickType;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.*;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.mixin.ItemUsageContextAccessor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ShadowItem extends NetworkSyncedItem {
     public ShadowItem(Settings settings) {
@@ -101,6 +111,28 @@ public class ShadowItem extends NetworkSyncedItem {
     }
 
     @Override
+    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
+        if (clickType == ClickType.RIGHT) {
+            var entry = getOrCreateEntry(player.getWorld(), stack);
+            entry.setStack(slot.insertStack(entry.getStack(), 1));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        var world2 = world == null ? (stack.getHolder() == null ? null : stack.getHolder().getWorld()) : world;
+        if (world2 != null) {
+            var entry = getOrCreateEntry(world2, stack);
+            tooltip.add(new TranslatableText("item.shadowsgate.shadowitem.lore"));
+            entry.getStack().getItem().appendTooltip(entry.getStack(), world, tooltip, context);
+        }
+    }
+
+    // Methods to copy behaviour of entry item:
+
+    @Override
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
         var entry = getOrCreateEntry(world, stack).getStack();
         entry.usageTick(world, user, remainingUseTicks);
@@ -129,7 +161,7 @@ public class ShadowItem extends NetworkSyncedItem {
         var holder = stack.getHolder();
         if (holder != null) {
             var entry = getOrCreateEntry(holder.getWorld(), stack);
-            
+            return entry.getStack().getMiningSpeedMultiplier(state);
         }
 
         return super.getMiningSpeedMultiplier(stack, state);
@@ -146,5 +178,97 @@ public class ShadowItem extends NetworkSyncedItem {
         } else {
             entry.getStack().inventoryTick(world, entity, slot, selected);
         }
+    }
+
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        var stack = user.getStackInHand(hand);
+        var entry = getOrCreateEntry(world, stack);
+        var result = entry.execute(user, hand, () -> entry.getStack().use(world, user, hand));
+        if (result.getValue() != entry.getStack()) {
+            entry.setStack(result.getValue());
+            entry.markDirty();
+        }
+        return new TypedActionResult<>(result.getResult(), stack);
+    }
+
+    @Override
+    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
+        var entry = getOrCreateEntry(world, stack);
+        entry.setStack(entry.getStack().finishUsing(world, user));
+        entry.markDirty();
+        return stack;
+    }
+
+    @Override
+    public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        var entry = getOrCreateEntry(world, stack);
+        if (user instanceof PlayerEntity player) {
+            entry.executeActiveHand(player, stack, () -> {
+                entry.getStack().onStoppedUsing(world, user, remainingUseTicks);
+                return 0;
+            });
+        } else {
+            entry.getStack().onStoppedUsing(world, user, remainingUseTicks);
+        }
+    }
+
+    @Override
+    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        var world = target == null ? (attacker == null ? null : attacker.getWorld()) : target.getWorld();
+        var entry = getOrCreateEntry(world, stack);
+        if (attacker instanceof PlayerEntity player) {
+            return entry.executeActiveHand(player, stack, () -> entry.getStack().getItem().postHit(stack, target, attacker));
+        } else {
+            return entry.getStack().getItem().postHit(stack, target, attacker);
+        }
+    }
+
+    @Override
+    public boolean postMine(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity miner) {
+        var entry = getOrCreateEntry(world, stack);
+        if (miner instanceof PlayerEntity player) {
+            return entry.executeActiveHand(player, stack, () -> entry.getStack().getItem().postMine(stack, world, state, pos, miner));
+        } else {
+            return entry.getStack().getItem().postMine(stack, world, state, pos, miner);
+        }
+    }
+
+    @Override
+    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+        var entry = getOrCreateEntry(user.getWorld(), stack);
+        return entry.executeActiveHand(user, stack, () -> stack.useOnEntity(user, entity, hand));
+    }
+
+    @Override
+    public UseAction getUseAction(ItemStack stack) {
+        if (stack.getHolder() != null) {
+            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getUseAction();
+        }
+        return super.getUseAction(stack);
+    }
+
+    @Override
+    public int getMaxUseTime(ItemStack stack) {
+        if (stack.getHolder() != null) {
+            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getMaxUseTime();
+        }
+        return super.getMaxUseTime(stack);
+    }
+
+    @Override
+    public boolean isUsedOnRelease(ItemStack stack) {
+        if (stack.getHolder() != null) {
+            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().isUsedOnRelease();
+        }
+        return super.isUsedOnRelease(stack);
+    }
+
+    @Override
+    public Optional<TooltipData> getTooltipData(ItemStack stack) {
+        if (stack.getHolder() != null) {
+            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getTooltipData();
+        }
+        return super.getTooltipData(stack);
     }
 }

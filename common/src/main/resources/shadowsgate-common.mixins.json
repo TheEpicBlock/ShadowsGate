@@ -6,6 +6,7 @@
   ],
   "mixins": [
     "DispenserBlockAccessor",
+    "FixItemStats",
     "ItemModelsMixin",
     "ItemRendererMixin",
     "ItemUsageContextAccessor",
