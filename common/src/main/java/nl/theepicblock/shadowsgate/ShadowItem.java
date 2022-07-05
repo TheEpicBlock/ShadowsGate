@@ -9,10 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.NetworkSyncedItem;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.Packet;
 import net.minecraft.screen.slot.Slot;
@@ -237,38 +234,47 @@ public class ShadowItem extends NetworkSyncedItem {
     @Override
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
         var entry = getOrCreateEntry(user.getWorld(), stack);
-        return entry.executeActiveHand(user, stack, () -> stack.useOnEntity(user, entity, hand));
+        return entry.executeActiveHand(user, stack, () -> entry.getStack().useOnEntity(user, entity, hand));
     }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        if (stack.getHolder() != null) {
-            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getUseAction();
+        World world = tryGetWorldFromStack(stack);
+        if (world != null) {
+            return getOrCreateEntry(world, stack).getStack().getUseAction();
         }
         return super.getUseAction(stack);
     }
 
     @Override
     public int getMaxUseTime(ItemStack stack) {
-        if (stack.getHolder() != null) {
-            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getMaxUseTime();
+        World world = tryGetWorldFromStack(stack);
+        if (world != null) {
+            return getOrCreateEntry(world, stack).getStack().getMaxUseTime();
         }
         return super.getMaxUseTime(stack);
     }
 
     @Override
     public boolean isUsedOnRelease(ItemStack stack) {
-        if (stack.getHolder() != null) {
-            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().isUsedOnRelease();
+        World world = tryGetWorldFromStack(stack);
+        if (world != null) {
+            return getOrCreateEntry(world, stack).getStack().isUsedOnRelease();
         }
         return super.isUsedOnRelease(stack);
     }
 
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
-        if (stack.getHolder() != null) {
-            return getOrCreateEntry(stack.getHolder().getWorld(), stack).getStack().getTooltipData();
+        World world = tryGetWorldFromStack(stack);
+        if (world != null) {
+            return getOrCreateEntry(world, stack).getStack().getTooltipData();
         }
         return super.getTooltipData(stack);
+    }
+
+    protected static World tryGetWorldFromStack(ItemStack stack) {
+        if (stack.getHolder() != null) return stack.getHolder().getWorld();
+        return ShadowsGate.getGlobalWorld();
     }
 }
