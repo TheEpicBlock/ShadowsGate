@@ -18,8 +18,7 @@ import net.minecraft.world.PersistentStateManager;
 public class ShadowEntry extends PersistentState implements Inventory {
     public static final ShadowEntry MISSING_ENTRY = new ShadowEntry(true);
     private ItemStack stack = ItemStack.EMPTY;
-    private final Slot fakeslot;
-
+    private final Slot fakeSlot;
 
     public ShadowEntry() {
         this(false);
@@ -27,9 +26,9 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
     public ShadowEntry(boolean locked) {
         if (locked) {
-            this.fakeslot = new CustomSlot(this, 0, 0, 0);
+            this.fakeSlot = new CustomSlot(this, 0, 0, 0);
         } else {
-            this.fakeslot = new CustomSlot(this, 0, 0, 0);
+            this.fakeSlot = new CustomSlot(this, 0, 0, 0);
         }
     }
 
@@ -92,6 +91,10 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
     public boolean isUninitialized() {
         return this.stack.isEmpty();
+    }
+
+    public Slot getFakeSlot() {
+        return fakeSlot;
     }
 
     public <T> T executeActiveHand(PlayerEntity player, ItemStack originalShadowItem, Funct<T> r) {

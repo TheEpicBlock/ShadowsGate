@@ -90,16 +90,19 @@ public class ShadowItem extends NetworkSyncedItem {
         if (otherStack.isEmpty()) {
             if (slot.canTakePartial(player)) {
                 if (clickType == ClickType.RIGHT) {
+                    // Right-click with an empty hand
                     cursorStackReference.set(entry.removeStack(0, entry.getStack().getCount()/2));
+                    return true;
                 }
             }
         } else {
             if (entry.canInsertStack(otherStack) && slot.canTakePartial(player) && !otherStack.isEmpty()) {
                 if (clickType == ClickType.RIGHT) {
-                    entry.setStack(otherStack.split(1));
+                    // Right click with another item
+                    cursorStackReference.set(entry.getFakeSlot().insertStack(otherStack, 1));
                 } else {
-                    cursorStackReference.set(ItemStack.EMPTY);
-                    entry.setStack(otherStack);
+                    // Left click with another item
+                    cursorStackReference.set(entry.getFakeSlot().insertStack(otherStack));
                 }
                 return true;
             }
@@ -110,10 +113,12 @@ public class ShadowItem extends NetworkSyncedItem {
     @Override
     public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
         if (clickType == ClickType.RIGHT) {
+            // Right click with a shadow item on another slot
             var entry = getOrCreateEntry(player.getWorld(), stack);
             entry.setStack(slot.insertStack(entry.getStack(), 1));
             return true;
         }
+        // FIXME add behaviour when left-clicking stacks with the same item
         return false;
     }
 
