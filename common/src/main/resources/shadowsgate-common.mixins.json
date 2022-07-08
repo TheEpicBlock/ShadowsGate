@@ -6,6 +6,7 @@
   ],
   "mixins": [
     "DispenserBlockAccessor",
+    "FixFoxxo",
     "FixItemStats",
     "FixItemUsage",
     "FixMobEntityInteract",
