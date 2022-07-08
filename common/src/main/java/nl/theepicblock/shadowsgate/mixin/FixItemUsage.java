@@ -47,10 +47,11 @@ public abstract class FixItemUsage extends Entity {
     @Redirect(method = "consumeItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"))
     public void fixConsume(LivingEntity instance, Hand hand, ItemStack itemStack) {
         var handItem = instance.getStackInHand(hand);
-        if (handItem.getItem() instanceof ShadowItem) {
+        if (handItem.getItem() instanceof ShadowItem && !(itemStack.getItem() instanceof ShadowItem)) {
             ShadowItem.getOrCreateEntry(this.getWorld(), handItem).setStack(itemStack);
+        } else {
+            instance.setStackInHand(hand, itemStack);
         }
-        instance.setStackInHand(hand, itemStack);
     }
 
     @Inject(method = "clearActiveItem", at = @At("HEAD"))
