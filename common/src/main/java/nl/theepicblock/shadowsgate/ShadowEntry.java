@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -72,8 +73,8 @@ public class ShadowEntry extends PersistentState implements Inventory {
     }
 
     public static boolean isValidStack(ItemStack stack) {
-        return stack.getItem() != ShadowsGate.getShadowItem();
-
+        var item = stack.getItem();
+        return item != ShadowsGate.getShadowItem() && item != Items.BUNDLE;
     }
 
     public boolean canInsertStack(ItemStack stack) {
