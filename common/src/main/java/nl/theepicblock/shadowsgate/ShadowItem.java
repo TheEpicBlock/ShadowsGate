@@ -17,7 +17,6 @@ import net.minecraft.server.Main;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -127,7 +126,7 @@ public class ShadowItem extends NetworkSyncedItem {
         var world2 = world == null ? (stack.getHolder() == null ? null : stack.getHolder().getWorld()) : world;
         if (world2 != null) {
             var entry = getOrCreateEntry(world2, stack);
-            tooltip.add(new TranslatableText("item.shadowsgate.shadowitem.lore"));
+            tooltip.add(Text.translatable("item.shadowsgate.shadowitem.lore"));
             entry.getStack().getItem().appendTooltip(entry.getStack(), world, tooltip, context);
         }
     }
