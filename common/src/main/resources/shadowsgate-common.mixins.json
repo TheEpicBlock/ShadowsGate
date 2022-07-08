@@ -13,7 +13,8 @@
     "ItemModelsMixin",
     "ItemRendererMixin",
     "ItemUsageContextAccessor",
-    "MixinClientPlayNetworkHandler"
+    "MixinClientPlayNetworkHandler",
+    "PatchRemoveOne"
   ],
   "injectors": {
     "defaultRequire": 1
