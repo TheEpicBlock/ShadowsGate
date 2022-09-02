@@ -6,19 +6,15 @@ import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.Packet;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.Main;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.mixin.ItemUsageContextAccessor;
@@ -243,7 +239,7 @@ public class ShadowItem extends NetworkSyncedItem {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        World world = tryGetWorldFromStack(stack);
+        World world = ShadowsGate.tryGetWorldFromStack(stack);
         if (world != null) {
             return getOrCreateEntry(world, stack).getStack().getUseAction();
         }
@@ -252,7 +248,7 @@ public class ShadowItem extends NetworkSyncedItem {
 
     @Override
     public int getMaxUseTime(ItemStack stack) {
-        World world = tryGetWorldFromStack(stack);
+        World world = ShadowsGate.tryGetWorldFromStack(stack);
         if (world != null) {
             return getOrCreateEntry(world, stack).getStack().getMaxUseTime();
         }
@@ -261,7 +257,7 @@ public class ShadowItem extends NetworkSyncedItem {
 
     @Override
     public boolean isUsedOnRelease(ItemStack stack) {
-        World world = tryGetWorldFromStack(stack);
+        World world = ShadowsGate.tryGetWorldFromStack(stack);
         if (world != null) {
             return getOrCreateEntry(world, stack).getStack().isUsedOnRelease();
         }
@@ -270,15 +266,11 @@ public class ShadowItem extends NetworkSyncedItem {
 
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
-        World world = tryGetWorldFromStack(stack);
+        World world = ShadowsGate.tryGetWorldFromStack(stack);
         if (world != null) {
             return getOrCreateEntry(world, stack).getStack().getTooltipData();
         }
         return super.getTooltipData(stack);
     }
 
-    protected static World tryGetWorldFromStack(ItemStack stack) {
-        if (stack.getHolder() != null) return stack.getHolder().getWorld();
-        return ShadowsGate.getGlobalWorld();
-    }
 }

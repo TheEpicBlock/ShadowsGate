@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.ShadowItem;
+import nl.theepicblock.shadowsgate.ShadowsGate;
 
 public class QShadowItem extends ShadowItem implements FabricItem {
     public QShadowItem(Settings settings) {
@@ -24,7 +25,7 @@ public class QShadowItem extends ShadowItem implements FabricItem {
 
     @Override
     public boolean isSuitableFor(ItemStack stack, BlockState state) {
-        World world = tryGetWorldFromStack(stack);
+        World world = ShadowsGate.tryGetWorldFromStack(stack);
         if (world != null) {
             return getOrCreateEntry(world, stack).getStack().isSuitableFor(state);
         }

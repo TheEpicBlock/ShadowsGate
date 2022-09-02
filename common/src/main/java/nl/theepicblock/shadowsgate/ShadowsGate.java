@@ -8,6 +8,7 @@ import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.DispenserBehavior;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.mixin.DispenserBlockAccessor;
@@ -15,10 +16,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+
 public class ShadowsGate {
     public static final String MOD_ID = "shadowsgate";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    private static @Nullable MinecraftServer SERVER_INSTANCE;
+    private static ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
     private static boolean SERVER_SANITY_CHECK = false;
 
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
@@ -45,14 +48,13 @@ public class ShadowsGate {
 
     @Nullable
     public static World getGlobalWorld() {
-        // This'll be called from both the server and client side, I'm going to prefer to let the server be authoritative
-        if (SERVER_INSTANCE != null) return SERVER_INSTANCE.getOverworld();
-        if (SERVER_SANITY_CHECK == false) {
-            // A server isn't currently active, nor has the sanity check tripped, so the client it is
+        if (MinecraftClient.getInstance().isOnThread()) {
             return getClientWorld();
-        } else {
-            return null;
         }
+        for (var server : ACTIVE_SERVERS) {
+            if (server.isOnThread()) return server.getOverworld();
+        }
+        return null;
     }
 
     private static World getClientWorld() {
@@ -60,17 +62,16 @@ public class ShadowsGate {
     }
 
     public static void serverStart(MinecraftServer server) {
-        if (SERVER_INSTANCE == null && SERVER_SANITY_CHECK == false) {
-            SERVER_INSTANCE = server;
-        } else {
-            ShadowsGate.LOGGER.warn("More than one server started, shadows gate sanity check has been tripped.");
-            SERVER_INSTANCE = null;
-            SERVER_SANITY_CHECK = true;
-        }
+        ACTIVE_SERVERS.add(server);
     }
 
 
     public static void serverStop(MinecraftServer server) {
-        SERVER_INSTANCE = null;
+        ACTIVE_SERVERS.remove(server);
+    }
+
+    public static World tryGetWorldFromStack(ItemStack stack) {
+        if (stack.getHolder() != null) return stack.getHolder().getWorld();
+        return getGlobalWorld();
     }
 }
