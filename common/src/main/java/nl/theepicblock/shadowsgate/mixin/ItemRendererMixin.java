@@ -3,11 +3,9 @@ package nl.theepicblock.shadowsgate.mixin;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import nl.theepicblock.shadowsgate.ShadowEntry;
 import nl.theepicblock.shadowsgate.ShadowItem;
 import nl.theepicblock.shadowsgate.ShadowsGate;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 

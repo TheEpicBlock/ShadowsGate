@@ -2,7 +2,6 @@ package nl.theepicblock.shadowsgate;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.world.IdCountsState;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 
