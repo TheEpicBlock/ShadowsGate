@@ -87,7 +87,7 @@ public class ShadowItem extends NetworkSyncedItem {
         if (otherStack.isEmpty()) {
             if (slot.canTakePartial(player)) {
                 if (clickType == ClickType.RIGHT) {
-                    // Right-click with an empty hand
+                    // Right click with an empty hand
                     cursorStackReference.set(entry.removeStack(0, entry.getStack().getCount()/2));
                     return true;
                 }
