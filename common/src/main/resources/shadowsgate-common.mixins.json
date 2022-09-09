@@ -12,6 +12,7 @@
     "FixMobEntityInteract",
     "FixProjectiles",
     "HopperBehaviour",
+    "HopperBlockEntityAccessor",
     "ItemModelsMixin",
     "ItemRendererMixin",
     "ItemUsageContextAccessor",
