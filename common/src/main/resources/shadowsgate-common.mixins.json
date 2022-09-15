@@ -12,6 +12,7 @@
     "FixItemUsage",
     "FixMobEntityInteract",
     "FixProjectiles",
+    "FixThrow",
     "HopperBehaviour",
     "HopperBlockEntityAccessor",
     "InventoryPickup",
