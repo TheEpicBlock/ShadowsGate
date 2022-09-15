@@ -19,8 +19,7 @@ import java.util.ArrayList;
 public class ShadowsGate {
     public static final String MOD_ID = "shadowsgate";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    private static ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
-    private static boolean SERVER_SANITY_CHECK = false;
+    private static final ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
 
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
 
@@ -62,7 +61,6 @@ public class ShadowsGate {
     public static void serverStart(MinecraftServer server) {
         ACTIVE_SERVERS.add(server);
     }
-
 
     public static void serverStop(MinecraftServer server) {
         ACTIVE_SERVERS.remove(server);

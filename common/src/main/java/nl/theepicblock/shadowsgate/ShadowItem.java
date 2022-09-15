@@ -65,16 +65,9 @@ public class ShadowItem extends NetworkSyncedItem {
     @Nullable
     @Override
     public Packet<?> createSyncPacket(ItemStack stack, World world, PlayerEntity player) {
-        var index = getIndex(stack);
-        if (index == -1) {
-            return null;
-        }
-        if (world instanceof ServerWorld serverWorld) {
-            var entry = ShadowEntry.get(serverWorld.getServer().getOverworld().getPersistentStateManager(), index);
-            return Networking.createPacket(index, entry);
-        } else {
-            return null;
-        }
+        var entry = getOrCreateEntry(world, stack);
+        if (entry == ShadowEntry.MISSING_ENTRY) return null;
+        return Networking.createPacket(getIndex(stack), entry);
     }
 
 
