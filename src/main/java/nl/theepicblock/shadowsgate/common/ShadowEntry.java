@@ -1,7 +1,7 @@
 package nl.theepicblock.shadowsgate.common;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -61,7 +61,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         return entry;
     }
 
-    @Environment(EnvType.CLIENT)
+    @ClientOnly
     public static ShadowEntry getEntryClient(int id) {
         var client = MinecraftClient.getInstance();
         if (client.player != null) {

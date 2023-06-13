@@ -11,12 +11,12 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ItemStack.class)
 public abstract class FixItemStats {
-    @Shadow @Nullable public abstract Entity getHolder();
+    @Shadow private Entity holder;
 
     @ModifyArg(method = {"postHit", "postMine"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/stat/StatType;getOrCreateStat(Ljava/lang/Object;)Lnet/minecraft/stat/Stat;"))
     private Object modifyStack(Object original) {
-        if (original instanceof ShadowItem && this.getHolder() != null) {
-            return ShadowItem.getOrCreateEntry(this.getHolder().getWorld(), (ItemStack)(Object)this).getStack();
+        if (original instanceof ShadowItem && this.holder != null) {
+            return ShadowItem.getOrCreateEntry(this.holder.getWorld(), (ItemStack)(Object)this).getStack();
         }
         return original;
     }

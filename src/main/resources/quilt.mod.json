@@ -1,10 +1,8 @@
 {
   "schema_version": 1,
-  "mixins": [
-    "shadowsgate-common.mixins.json"
-  ],
+  "mixin": "shadowsgate-common.mixins.json",
   "quilt_loader": {
-    "group": "${group}",
+    "group": "${maven_group}",
     "id": "shadowsgate",
     "version": "${version}",
     "metadata": {
@@ -22,7 +20,6 @@
       "icon": "assets/shadowsgate/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
-    "environment": "*",
     "entrypoints": {
       "init": [
         "nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl"
