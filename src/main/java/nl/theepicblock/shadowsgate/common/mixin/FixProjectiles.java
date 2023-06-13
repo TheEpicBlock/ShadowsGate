@@ -47,8 +47,10 @@ public abstract class FixProjectiles extends LivingEntity {
         var retStack = cir.getReturnValue();
         if (retStack.getItem() == ShadowsGate.getShadowItem()) {
             World world = null;
-            if (itemStack.getHolder() != null) world = ((ItemStackAccessor)(Object)itemStack).shadowsgate$getHolder().getWorld();
-            if (retStack.getHolder() != null) world = ((ItemStackAccessor)(Object)retStack).shadowsgate$getHolder().getWorld();
+            var itemStackAccessor = ((ItemStackAccessor)(Object)itemStack);
+            var retStackAccessor = ((ItemStackAccessor)(Object)retStack);
+            if (itemStackAccessor.shadowsgate$getHolder() != null) world = itemStackAccessor.shadowsgate$getHolder().getWorld();
+            if (retStackAccessor.shadowsgate$getHolder() != null) world = retStackAccessor.shadowsgate$getHolder().getWorld();
             if (world == null) world = ShadowsGate.getGlobalWorld(); // Try to fall back on the global world
 
             if (world != null) {

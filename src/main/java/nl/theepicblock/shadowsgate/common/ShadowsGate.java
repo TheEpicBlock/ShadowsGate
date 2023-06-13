@@ -68,7 +68,8 @@ public class ShadowsGate {
     }
 
     public static World tryGetWorldFromStack(ItemStack stack) {
-        if (stack.getHolder() != null) return ((ItemStackAccessor)(Object)stack).shadowsgate$getHolder().getWorld();
+        var accessor = ((ItemStackAccessor)(Object)stack);
+        if (accessor.shadowsgate$getHolder() != null) return accessor.shadowsgate$getHolder().getWorld();
         return getGlobalWorld();
     }
 }
