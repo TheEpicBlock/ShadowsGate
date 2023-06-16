@@ -14,6 +14,7 @@ import nl.theepicblock.shadowsgate.common.mixin.ItemStackAccessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class ShadowsGate {
     private static final ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
 
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
+
+    public static boolean AAAAAAA = false;
 
     public static void init() {
         Networking.init();
@@ -39,7 +42,7 @@ public class ShadowsGate {
         });
     }
 
-    @Nullable
+    @NotNull
     public static Item getShadowItem() {
         return ShadowsGateImpl.getShadowItem();
     }

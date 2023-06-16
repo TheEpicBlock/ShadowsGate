@@ -17,7 +17,7 @@ public class ItemModelsMixin {
         if (stack.getItem() == ShadowsGate.getShadowItem()) {
             var entry = ShadowItem.getClientEntry(stack);
             if (entry.isUninitialized()) {
-                return new ItemStack(Items.BARRIER);
+                return stack; // render the actual shadow item I guess
             }
             return entry.getStack();
         }
