@@ -68,7 +68,13 @@ public class ShadowItem extends NetworkSyncedItem {
     public Packet<?> createSyncPacket(ItemStack stack, World world, PlayerEntity player) {
         var entry = getOrCreateEntry(world, stack);
         if (entry == ShadowEntry.MISSING_ENTRY) return null;
-        return Networking.createPacket(getIndex(stack), entry);
+        if (entry.checkDirt(player)) {
+            entry.resetDirt(player);
+            return Networking.createPacket(getIndex(stack), entry);
+        } else {
+            // The entry isn't marked dirty for this player, so no need to send them a packet
+            return null;
+        }
     }
 
 

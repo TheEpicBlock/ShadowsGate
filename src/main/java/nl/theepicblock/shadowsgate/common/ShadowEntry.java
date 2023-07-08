@@ -1,7 +1,7 @@
 package nl.theepicblock.shadowsgate.common;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -15,11 +15,17 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Hand;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class ShadowEntry extends PersistentState implements Inventory {
     public static final ShadowEntry MISSING_ENTRY = new ShadowEntry(true);
     private ItemStack stack = ItemStack.EMPTY;
     private final Slot fakeSlot;
+
+    // We're employing a simple versioning-ish system here to keep track of dirtyness values per player
+    // This is so we don't send useless packets
+    public final Object2IntMap<PlayerEntity> dirtynessTracker;
+    private int dirtynessValue = 0;
 
     public ShadowEntry() {
         this(false);
@@ -31,6 +37,8 @@ public class ShadowEntry extends PersistentState implements Inventory {
         } else {
             this.fakeSlot = new CustomSlot(this, 0, 0, 0);
         }
+        this.dirtynessTracker = new Object2IntOpenHashMap<>();
+        this.dirtynessTracker.defaultReturnValue(-1); // Ensures that new players added to the list are always marked out-of-date
     }
 
     public static ShadowEntry fromNbt(NbtCompound nbt) {
@@ -59,6 +67,26 @@ public class ShadowEntry extends PersistentState implements Inventory {
         var entry = new ShadowEntry();
         entry.stack = buf.readItemStack();
         return entry;
+    }
+
+    @Override
+    public void markDirty() {
+        dirtynessValue++;
+        super.markDirty();
+    }
+
+    /**
+     * Checks if a player has a dirty value
+     */
+    public boolean checkDirt(PlayerEntity player) {
+        return dirtynessTracker.getInt(player) < dirtynessValue;
+    }
+
+    /**
+     * Marks a player as no longer being dirty
+     */
+    public void resetDirt(PlayerEntity player) {
+        dirtynessTracker.put(player, dirtynessValue);
     }
 
     @ClientOnly

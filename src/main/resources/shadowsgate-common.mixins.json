@@ -17,12 +17,13 @@
     "HopperBehaviour",
     "HopperBlockEntityAccessor",
     "InventoryPickup",
-    "ItemStackAccessor",
     "ItemModelsMixin",
     "ItemRendererMixin",
+    "ItemStackAccessor",
     "ItemUsageContextAccessor",
     "MixinClientPlayNetworkHandler",
-    "PatchRemoveOne"
+    "PatchRemoveOne",
+    "PersistentStateManagerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

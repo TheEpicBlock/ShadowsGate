@@ -1,21 +1,24 @@
 package nl.theepicblock.shadowsgate.common;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.DispenserBehavior;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl;
 import nl.theepicblock.shadowsgate.common.mixin.DispenserBlockAccessor;
 import nl.theepicblock.shadowsgate.common.mixin.ItemStackAccessor;
-
+import nl.theepicblock.shadowsgate.common.mixin.PersistentStateManagerAccessor;
+import nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.quiltmc.qsl.lifecycle.api.event.ServerTickEvents;
 
 import java.util.ArrayList;
 
@@ -39,6 +42,27 @@ public class ShadowsGate {
                 entry.markDirty();
             }
             return stack; // Always keep the stack the same to preserve the shadow item
+        });
+        ServerTickEvents.END.register(server -> {
+            if ((server.getTicks()+198) % 300 != 0) return;
+
+            // Each of our persistent states tracks some values per player
+            // This code is to garbage-collect any player who no longer has a shadow item in their inventory
+            var loadedStates = ((PersistentStateManagerAccessor)server.getOverworld().getPersistentStateManager()).getLoadedStates();
+            var playerInvCache = new Object2BooleanOpenHashMap<PlayerEntity>(); // Stores players that have shadowitems in their inventory
+
+            for (var state : loadedStates.values()) {
+                if (state instanceof ShadowEntry e) {
+                    var iterator = e.dirtynessTracker.keySet().iterator();
+                    while (iterator.hasNext()) {
+                        var player = iterator.next();
+                        var hasShadowItem = playerInvCache.computeIfAbsent(player, player1 -> ((PlayerEntity)player1).getInventory().anyMatch(stack -> stack.getItem() == ShadowsGate.getShadowItem()));
+                        if (player.isRemoved() || !hasShadowItem) {
+                            iterator.remove();
+                        }
+                    }
+                }
+            }
         });
     }
 
