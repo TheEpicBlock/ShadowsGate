@@ -68,7 +68,7 @@ public abstract class HopperBehaviour {
 
             if (result.isEmpty()) {
                 shadowsgate$insertSuccesfull.set(true);
-                shadowEntry.markDirty();
+                shadowEntry.setDirty();
             } else {
                 shadowEntry.setStack(original);
             }

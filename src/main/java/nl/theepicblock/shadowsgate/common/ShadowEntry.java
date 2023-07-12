@@ -69,8 +69,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         return entry;
     }
 
-    @Override
-    public void markDirty() {
+    public void setDirty() {
         dirtynessValue++;
         super.markDirty();
     }
@@ -115,7 +114,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
     public void setStack(ItemStack stack) {
         this.stack = stack;
-        this.markDirty();
+        this.setDirty();
     }
 
     public boolean isUninitialized() {
@@ -151,7 +150,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
                 inv.offHand.set(0, original);
                 if (newItem != this.stack) {
                     this.setStack(newItem);
-                    this.markDirty();
+                    this.setDirty();
                 }
 
                 yield ret;
@@ -176,7 +175,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         inv.main.set(inv.selectedSlot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.markDirty();
+            this.setDirty();
         }
 
         return v;
@@ -194,7 +193,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         player.getInventory().setStack(slot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.markDirty();
+            this.setDirty();
         }
 
         return v;

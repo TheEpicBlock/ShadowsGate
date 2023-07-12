@@ -186,7 +186,7 @@ public class ShadowItem extends NetworkSyncedItem {
         var result = entry.execute(user, hand, () -> entry.getStack().use(world, user, hand));
         if (result.getValue() != entry.getStack()) {
             entry.setStack(result.getValue());
-            entry.markDirty();
+            entry.setDirty();
         }
         return new TypedActionResult<>(result.getResult(), stack);
     }
@@ -195,7 +195,7 @@ public class ShadowItem extends NetworkSyncedItem {
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         var entry = getOrCreateEntry(world, stack);
         entry.setStack(entry.getStack().finishUsing(world, user));
-        entry.markDirty();
+        entry.setDirty();
         return stack;
     }
 

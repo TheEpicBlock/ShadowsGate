@@ -58,7 +58,7 @@ public abstract class FixItemUsage extends Entity {
     public void ensureDirty(CallbackInfo ci) {
         var handItem = this.getStackInHand(this.getActiveHand());
         if (handItem.getItem() instanceof ShadowItem) {
-            ShadowItem.getOrCreateEntry(this.getWorld(), handItem).markDirty();
+            ShadowItem.getOrCreateEntry(this.getWorld(), handItem).setDirty();
         }
     }
 }
