@@ -7,7 +7,7 @@
     "version": "${version}",
     "metadata": {
       "name": "${displayname}",
-      "description": "${description}",
+      "description": "${mod_description}",
       "contributors": {
         "TheEpicBlock": "Owner"
       },
