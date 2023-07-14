@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -17,10 +16,11 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
-public class ShadowEntry extends PersistentState implements Inventory {
+public class ShadowEntry extends PersistentState {
     public static final ShadowEntry MISSING_ENTRY = new ShadowEntry(true);
     private ItemStack stack = ItemStack.EMPTY;
     private final Slot fakeSlot;
+    public final ShadowEntryFakeInventory fakeInv;
 
     // We're employing a simple versioning-ish system here to keep track of dirtyness values per player
     // This is so we don't send useless packets
@@ -32,10 +32,11 @@ public class ShadowEntry extends PersistentState implements Inventory {
     }
 
     public ShadowEntry(boolean locked) {
+        this.fakeInv = new ShadowEntryFakeInventory(this);
         if (locked) {
-            this.fakeSlot = new CustomSlot(this, 0, 0, 0);
+            this.fakeSlot = new CustomSlot(fakeInv, 0, 0, 0);
         } else {
-            this.fakeSlot = new CustomSlot(this, 0, 0, 0);
+            this.fakeSlot = new CustomSlot(fakeInv, 0, 0, 0);
         }
         this.dirtynessTracker = new Object2IntOpenHashMap<>();
         this.dirtynessTracker.defaultReturnValue(-1); // Ensures that new players added to the list are always marked out-of-date
@@ -69,7 +70,8 @@ public class ShadowEntry extends PersistentState implements Inventory {
         return entry;
     }
 
-    public void setDirty() {
+    @Override
+    public void markDirty() {
         dirtynessValue++;
         super.markDirty();
     }
@@ -105,7 +107,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
     }
 
     public boolean canInsertStack(ItemStack stack) {
-        return isValidStack(stack) && (ItemStack.canCombine(this.stack, stack) || this.isEmpty());
+        return isValidStack(stack) && (ItemStack.canCombine(this.stack, stack) || stack.isEmpty());
     }
 
     public ItemStack getStack() {
@@ -114,7 +116,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
 
     public void setStack(ItemStack stack) {
         this.stack = stack;
-        this.setDirty();
+        this.markDirty();
     }
 
     public boolean isUninitialized() {
@@ -150,7 +152,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
                 inv.offHand.set(0, original);
                 if (newItem != this.stack) {
                     this.setStack(newItem);
-                    this.setDirty();
+                    this.markDirty();
                 }
 
                 yield ret;
@@ -175,7 +177,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         inv.main.set(inv.selectedSlot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.setDirty();
+            this.markDirty();
         }
 
         return v;
@@ -193,7 +195,7 @@ public class ShadowEntry extends PersistentState implements Inventory {
         player.getInventory().setStack(slot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.setDirty();
+            this.markDirty();
         }
 
         return v;
@@ -207,57 +209,5 @@ public class ShadowEntry extends PersistentState implements Inventory {
     @FunctionalInterface
     public interface Funct<T> {
         T run();
-    }
-
-    // INVENTORY CODE
-
-    @Override
-    public int size() {
-        return 1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.stack.isEmpty();
-    }
-
-    @Override
-    public ItemStack getStack(int slot) {
-        if (slot == 0) {
-            return stack;
-        }
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return slot == 0 && !this.stack.isEmpty() && amount > 0 ? this.stack.split(amount) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeStack(int slot) {
-        if (slot == 0) {
-            var stack = this.stack;
-            this.setStack(ItemStack.EMPTY);
-            return stack;
-        }
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void setStack(int slot, ItemStack stack) {
-        if (slot == 0) {
-            this.setStack(stack);
-        }
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return this != MISSING_ENTRY;
-    }
-
-    @Override
-    public void clear() {
-
     }
 }

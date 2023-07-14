@@ -46,7 +46,7 @@ public abstract class HopperBehaviour {
 
             cir.setReturnValue(transfer(
                     sourceInventory,
-                    shadowEntry,
+                    shadowEntry.fakeInv,
                     toTransfer,
                     0, // The destination index is set to 0 because the destination is now the pseudo inventory, whose only slot is #0
                     direction));
@@ -68,7 +68,7 @@ public abstract class HopperBehaviour {
 
             if (result.isEmpty()) {
                 shadowsgate$insertSuccesfull.set(true);
-                shadowEntry.setDirty();
+                shadowEntry.markDirty();
             } else {
                 shadowEntry.setStack(original);
             }

@@ -24,8 +24,8 @@ public abstract class FixThrow {
             var mainHandStack = this.getMainHandStack();
             if (mainHandStack.getItem() == ShadowsGate.getShadowItem()) {
                 var entry = ShadowItem.getOrCreateEntry(this.player.getWorld(), mainHandStack);
-                var toThrow = entry.removeStack(0, 1);
-                entry.setDirty();
+                var toThrow = entry.fakeInv.removeStack(0, 1);
+                entry.markDirty();
                 cir.setReturnValue(toThrow);
             }
         }

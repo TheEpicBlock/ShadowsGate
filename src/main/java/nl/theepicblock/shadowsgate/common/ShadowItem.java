@@ -88,7 +88,7 @@ public class ShadowItem extends NetworkSyncedItem {
             if (slot.canTakePartial(player)) {
                 if (clickType == ClickType.RIGHT) {
                     // Right click with an empty hand
-                    cursorStackReference.set(entry.removeStack(0, entry.getStack().getCount()/2));
+                    cursorStackReference.set(entry.fakeInv.removeStack(0, entry.getStack().getCount()/2));
                     return true;
                 }
             }
@@ -186,7 +186,7 @@ public class ShadowItem extends NetworkSyncedItem {
         var result = entry.execute(user, hand, () -> entry.getStack().use(world, user, hand));
         if (result.getValue() != entry.getStack()) {
             entry.setStack(result.getValue());
-            entry.setDirty();
+            entry.markDirty();
         }
         return new TypedActionResult<>(result.getResult(), stack);
     }
@@ -195,7 +195,7 @@ public class ShadowItem extends NetworkSyncedItem {
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         var entry = getOrCreateEntry(world, stack);
         entry.setStack(entry.getStack().finishUsing(world, user));
-        entry.setDirty();
+        entry.markDirty();
         return stack;
     }
 
