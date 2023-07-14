@@ -107,7 +107,7 @@ public class ShadowEntry extends PersistentState {
     }
 
     public boolean canInsertStack(ItemStack stack) {
-        return isValidStack(stack) && (ItemStack.canCombine(this.stack, stack) || stack.isEmpty());
+        return isValidStack(stack) && (ItemStack.canCombine(this.stack, stack) || this.stack.isEmpty());
     }
 
     public ItemStack getStack() {
