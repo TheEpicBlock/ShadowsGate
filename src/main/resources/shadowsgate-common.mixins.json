@@ -1,5 +1,5 @@
 {
-  "required": true,
+  "required": false,
   "package": "nl.theepicblock.shadowsgate.common.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
@@ -21,6 +21,7 @@
     "ItemRendererMixin",
     "ItemStackAccessor",
     "ItemUsageContextAccessor",
+    "LithiumCompat",
     "MixinClientPlayNetworkHandler",
     "PatchRemoveOne",
     "PersistentStateManagerAccessor"
