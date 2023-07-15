@@ -124,11 +124,20 @@ public class ShadowItem extends NetworkSyncedItem {
         var world2 = world == null ? (((ItemStackAccessor)(Object)stack).shadowsgate$getHolder() == null ? null : ((ItemStackAccessor)(Object)stack).shadowsgate$getHolder().getWorld()) : world;
         if (world2 != null) {
             var entry = getOrCreateEntry(world2, stack);
-            if (!entry.getStack().isEmpty()) {
-                tooltip.add(Text.translatable("item.shadowsgate.shadowitem.lore"));
+            if (!entry.getStack().isEmpty() || context.shouldShowAdvancedDetails()) {
+                if (context.shouldShowAdvancedDetails()) {
+                    tooltip.add(Text.translatable("item.shadowsgate.shadowitem.lore_advanced", getIndex(stack)));
+                } else {
+                    tooltip.add(Text.translatable("item.shadowsgate.shadowitem.lore"));
+                }
             }
             entry.getStack().getItem().appendTooltip(entry.getStack(), world, tooltip, context);
         }
+    }
+
+    public Text getName() {
+        // The name only shows up if the item's empty
+        return Text.translatable("item.shadowsgate.shadowitem.lore");
     }
 
     // Methods to copy behaviour of entry item:

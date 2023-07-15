@@ -1,3 +1,4 @@
 {
-  "item.shadowsgate.shadowitem.lore": "Shadowed item"
+  "item.shadowsgate.shadowitem.lore": "Shadowed item",
+  "item.shadowsgate.shadowitem.lore_advanced": "Shadowed item (id: %s)"
 }
