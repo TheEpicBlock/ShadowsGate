@@ -1,10 +1,11 @@
 package nl.theepicblock.shadowsgate.common;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.DispenserBehavior;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,11 +29,10 @@ public class ShadowsGate {
     private static final ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
 
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
-
-    public static boolean AAAAAAA = false;
+    public static boolean RenderHack = false;
+    public static boolean CLIENT = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
 
     public static void init() {
-        Networking.init();
         DispenserBlock.registerBehavior(getShadowItem(), (pointer, stack) -> {
             var entry = ShadowItem.getOrCreateEntry(pointer.getWorld(), stack);
             if (entry == ShadowEntry.MISSING_ENTRY) return stack;
@@ -73,17 +73,14 @@ public class ShadowsGate {
 
     @Nullable
     public static World getGlobalWorld() {
-        if (MinecraftClient.getInstance().isOnThread()) {
-            return getClientWorld();
+        if (CLIENT) {
+            var clientWorld = ShadowsGateClient.getClientWorld();
+            if (clientWorld != null) return clientWorld;
         }
         for (var server : ACTIVE_SERVERS) {
             if (server.isOnThread()) return server.getOverworld();
         }
         return null;
-    }
-
-    private static World getClientWorld() {
-        return MinecraftClient.getInstance().world;
     }
 
     public static void serverStart(MinecraftServer server) {

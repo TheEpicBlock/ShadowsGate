@@ -1,11 +1,10 @@
 package nl.theepicblock.shadowsgate.common;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.util.Identifier;
 import nl.theepicblock.shadowsgate.fabric.NetworkingImpl;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class Networking {
     public static final String PROTOCOL_VERSION = "1";
@@ -25,9 +24,5 @@ public class Networking {
 
     public static Packet<?> createPacket(int id, ShadowEntry entry) {
         return NetworkingImpl.createPacket(id, entry);
-    }
-
-    public static void init() {
-        NetworkingImpl.init();
     }
 }
