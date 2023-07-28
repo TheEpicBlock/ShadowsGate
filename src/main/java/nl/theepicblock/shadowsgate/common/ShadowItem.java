@@ -135,11 +135,6 @@ public class ShadowItem extends NetworkSyncedItem {
         }
     }
 
-    public Text getName() {
-        // The name only shows up if the item's empty
-        return Text.translatable("item.shadowsgate.shadowitem.lore");
-    }
-
     // Methods to copy behaviour of entry item:
 
     @Override
