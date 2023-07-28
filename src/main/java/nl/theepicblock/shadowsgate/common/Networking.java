@@ -11,7 +11,7 @@ public class Networking {
     public static final Identifier SYNC_ENTRY = new Identifier(ShadowsGate.MOD_ID, "sync_entry");
 
     /**
-     * @see ShadowEntry#getEntryClient(int)
+     * This is now done directly in the packet handler
      */
     @ClientOnly
     public static void onSyncPacket(int id, ShadowEntry entry) {

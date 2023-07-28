@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.world.World;
+import nl.theepicblock.shadowsgate.common.ClientShadowEntriesDuck;
 import nl.theepicblock.shadowsgate.common.Networking;
 import nl.theepicblock.shadowsgate.common.ShadowEntry;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +26,8 @@ public class ShadowsGateClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Networking.SYNC_ENTRY, (client, handler, buf, responseSender) -> {
             var id = buf.readVarInt();
             var entry = ShadowEntry.read(buf);
-            Networking.onSyncPacket(id, entry);
+            var entries = ((ClientShadowEntriesDuck)handler).shadowsgate$getEntries();
+            entries.put(id, entry);
         });
     }
 }
