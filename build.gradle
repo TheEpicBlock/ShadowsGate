@@ -23,7 +23,9 @@ dependencies {
 
 	modImplementation libs.quilted.fabric.api
 
-	modImplementation libs.lithium
+	modImplementation(libs.lithium) {
+		transitive = false
+	}
 }
 
 processResources {
