@@ -17,7 +17,7 @@ public abstract class FixFoxxo extends AnimalEntity {
         super(entityType, world);
     }
 
-    @Redirect(method = "canEat", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
+    @Redirect(method = { "canEat", "canPickupItem" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
     private Item redirectItem(ItemStack instance) {
         var item = instance.getItem();
         if (item instanceof ShadowItem) {
