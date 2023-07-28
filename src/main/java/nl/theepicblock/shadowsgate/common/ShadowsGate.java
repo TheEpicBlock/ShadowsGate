@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.common.mixin.DispenserBlockAccessor;
 import nl.theepicblock.shadowsgate.common.mixin.ItemStackAccessor;
 import nl.theepicblock.shadowsgate.common.mixin.PersistentStateManagerAccessor;
+import nl.theepicblock.shadowsgate.fabric.ShadowsGateClient;
 import nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

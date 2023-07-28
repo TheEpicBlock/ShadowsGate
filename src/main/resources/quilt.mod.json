@@ -23,6 +23,9 @@
     "entrypoints": {
       "init": [
         "nl.theepicblock.shadowsgate.fabric.ShadowsGateImpl"
+      ],
+      "client": [
+        "nl.theepicblock.shadowsgate.fabric.ShadowsGateClient"
       ]
     },
     "depends": [
