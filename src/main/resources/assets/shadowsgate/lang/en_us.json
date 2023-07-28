@@ -1,5 +1,5 @@
 {
-  "item.shadowsgate.shadowitem": "Empty shadow stack",
-  "item.shadowsgate.shadowitem.lore": "Shadowed item",
-  "item.shadowsgate.shadowitem.lore_advanced": "Shadowed item (id: %s)"
+  "item.shadowsgate.shadow_item": "Empty shadow stack",
+  "item.shadowsgate.shadow_item.lore": "Shadowed item",
+  "item.shadowsgate.shadow_item.lore_advanced": "Shadowed item (id: %s)"
 }
