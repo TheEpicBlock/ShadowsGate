@@ -24,7 +24,9 @@ public class InventoryPickup {
             ordinal = 1)
     private ItemStack shadowStackStacking(ItemStack slotStack) {
         if (slotStack.getItem() == ShadowsGate.getShadowItem()) {
-            return ShadowItem.getOrCreateEntry(ShadowsGate.tryGetWorldFromStack(slotStack), slotStack).getStack();
+            var entry = ShadowItem.getOrCreateEntry(ShadowsGate.tryGetWorldFromStack(slotStack), slotStack);
+            entry.markDirty(); // If we got to this point we already know that the stack is going to get changed
+            return entry.getStack();
         }
         return slotStack;
     }
