@@ -8,7 +8,11 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class Networking {
     public static final String PROTOCOL_VERSION = "1";
-    public static final Identifier SYNC_ENTRY = new Identifier(ShadowsGate.MOD_ID, "sync_entry");
+    public static final Identifier SYNC_ENTRY_S2C = new Identifier(ShadowsGate.MOD_ID, "sync_entry");
+    /**
+     * Allows the client to override the entry's contents with anything. Therefore, it's creative-only
+     */
+    public static final Identifier UPDATE_ENTRY_C2S = new Identifier(ShadowsGate.MOD_ID, "update_entry");
 
     /**
      * This is now done directly in the packet handler

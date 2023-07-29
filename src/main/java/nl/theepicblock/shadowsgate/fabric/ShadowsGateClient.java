@@ -23,11 +23,14 @@ public class ShadowsGateClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientPlayNetworking.registerGlobalReceiver(Networking.SYNC_ENTRY, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Networking.SYNC_ENTRY_S2C, (client, handler, buf, responseSender) -> {
             var id = buf.readVarInt();
             var entry = ShadowEntry.read(buf);
             var entries = ((ClientShadowEntriesDuck)handler).shadowsgate$getEntries();
-            entries.put(id, entry);
+
+            client.execute(() -> {
+                entries.put(id, entry);
+            });
         });
     }
 }

@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import java.util.HashMap;
@@ -294,6 +295,13 @@ public class ShadowEntry extends PersistentState {
     public static ShadowEntry get(PersistentStateManager manager, int id) {
         var name = "shadowsgate_entry_"+id;
         return manager.getOrCreate(ShadowEntry::fromNbt, ShadowEntry::new, name);
+    }
+
+    @Nullable
+    public static ShadowEntry getExisting(MinecraftServer server, int id) {
+        var name = "shadowsgate_entry_"+id;
+        var manager = server.getOverworld().getPersistentStateManager();
+        return manager.get(ShadowEntry::fromNbt, name);
     }
 
     @FunctionalInterface

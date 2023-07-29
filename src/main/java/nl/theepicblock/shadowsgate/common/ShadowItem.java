@@ -3,6 +3,7 @@ package nl.theepicblock.shadowsgate.common;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
@@ -21,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.common.mixin.ItemStackAccessor;
 import nl.theepicblock.shadowsgate.common.mixin.ItemUsageContextAccessor;
+import nl.theepicblock.shadowsgate.fabric.NetworkingImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -49,7 +51,7 @@ public class ShadowItem extends NetworkSyncedItem {
                 stack.getOrCreateNbt().putInt("shadowindex", index);
             }
 
-            return ShadowEntry.get(serverWorld.getServer().getOverworld().getPersistentStateManager(), index);
+            return ShadowEntry.get(serverWorld.getServer(), index);
         } else if (world.isClient) {
             return ShadowEntry.getEntryClient(index);
         }
@@ -77,8 +79,6 @@ public class ShadowItem extends NetworkSyncedItem {
         }
     }
 
-
-
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
         var entry = getOrCreateEntry(player.getWorld(), stack);
@@ -89,6 +89,7 @@ public class ShadowItem extends NetworkSyncedItem {
                 if (clickType == ClickType.RIGHT) {
                     // Right click with an empty hand
                     cursorStackReference.set(entry.fakeInv.removeStack(0, entry.getStack().getCount()/2));
+                    playerChangedContents(stack, entry, player);
                     return true;
                 }
             }
@@ -101,6 +102,7 @@ public class ShadowItem extends NetworkSyncedItem {
                     // Left click with another item
                     cursorStackReference.set(entry.getFakeSlot().insertStack(otherStack));
                 }
+                playerChangedContents(stack, entry, player);
                 return true;
             }
         }
@@ -113,10 +115,17 @@ public class ShadowItem extends NetworkSyncedItem {
             // Right click with a shadow item on another slot
             var entry = getOrCreateEntry(player.getWorld(), stack);
             entry.setStack(slot.insertStack(entry.getStack(), 1));
+            playerChangedContents(stack, entry, player);
             return true;
         }
         // FIXME add behaviour when left-clicking stacks with the same item
         return false;
+    }
+
+    private static void playerChangedContents(ItemStack stack, ShadowEntry entry, PlayerEntity player) {
+        if (player.isCreative() && player instanceof ClientPlayerEntity clientPlayer) {
+            clientPlayer.networkHandler.sendPacket(NetworkingImpl.createUpdatePacket(getIndex(stack), entry));
+        }
     }
 
     @Override
