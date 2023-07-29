@@ -1,10 +1,12 @@
 package nl.theepicblock.shadowsgate.fabric;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import nl.theepicblock.shadowsgate.common.Commands;
 import nl.theepicblock.shadowsgate.common.Networking;
 import nl.theepicblock.shadowsgate.common.ShadowEntry;
 import nl.theepicblock.shadowsgate.common.ShadowsGate;
@@ -41,5 +43,7 @@ public class ShadowsGateImpl implements ModInitializer {
                 }
             });
         });
+
+        CommandRegistrationCallback.EVENT.register(Commands::register);
 	}
 }

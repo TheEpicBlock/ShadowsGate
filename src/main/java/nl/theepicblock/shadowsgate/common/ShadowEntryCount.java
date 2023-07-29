@@ -4,6 +4,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
+import org.jetbrains.annotations.ApiStatus;
 
 public class ShadowEntryCount extends PersistentState {
     private int count;
@@ -26,6 +27,14 @@ public class ShadowEntryCount extends PersistentState {
 
     public static ShadowEntryCount get(PersistentStateManager manager) {
         return manager.getOrCreate(ShadowEntryCount::fromNbt, ShadowEntryCount::new, "shadowsgate_entrycount");
+    }
+
+    /**
+     * Used only for debugging!
+     */
+    @ApiStatus.Internal
+    public int getCount() {
+        return count;
     }
 
     public int getNextId() {

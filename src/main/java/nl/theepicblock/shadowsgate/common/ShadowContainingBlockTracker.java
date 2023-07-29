@@ -8,6 +8,7 @@ import net.minecraft.nbt.NbtIntArray;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.common.mixin.DoubleInventoryAccessor;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
@@ -60,6 +61,14 @@ public class ShadowContainingBlockTracker {
 
     public void add(BlockPos pos) {
         this.mainSet.add(pos);
+    }
+
+    /**
+     * To be used only for debugging!
+     */
+    @ApiStatus.Internal
+    public Collection<BlockPos> getPositions() {
+        return mainSet;
     }
 
     public void fromNbt(NbtElement e) {

@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
@@ -161,6 +162,14 @@ public class ShadowEntry extends PersistentState {
     public void startTrackingBlockPos(World world, BlockPos pos) {
         if (!world.isClient)
             this.usedPositions.computeIfAbsent(world.getRegistryKey(), k -> new ShadowContainingBlockTracker(this)).add(pos);
+    }
+
+    /**
+     * To be used only for debugging!
+     */
+    @ApiStatus.Internal
+    public Map<RegistryKey<World>, ShadowContainingBlockTracker> getUsedPositions() {
+        return this.usedPositions;
     }
 
     public void updateWorld(MinecraftServer server) {
