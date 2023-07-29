@@ -32,6 +32,9 @@ public class ShadowsGate {
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
     public static boolean CLIENT = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
     public static boolean LITHIUM = FabricLoader.getInstance().isModLoaded("lithium");
+    /**
+     * Prevents the rendering mixin from kicking in when we actually want to render the shadow item model instead of the model inside the shadow item
+     */
     public static boolean RenderHack = false;
 
     public static void init() {
