@@ -44,7 +44,6 @@ public class ShadowsGate {
             var behaviour = ((DispenserBlockAccessor)Blocks.DISPENSER).callGetBehaviorForItem(entry.getStack());
             if (behaviour != DispenserBehavior.NOOP) {
                 entry.setStack(behaviour.dispense(pointer, entry.getStack()));
-                entry.markDirty();
             }
             return stack; // Always keep the stack the same to preserve the shadow item
         });

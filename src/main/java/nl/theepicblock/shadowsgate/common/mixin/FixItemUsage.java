@@ -10,9 +10,7 @@ import nl.theepicblock.shadowsgate.common.ShadowItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public abstract class FixItemUsage extends Entity {
@@ -51,14 +49,6 @@ public abstract class FixItemUsage extends Entity {
             ShadowItem.getOrCreateEntry(this.getWorld(), handItem).setStack(itemStack);
         } else {
             instance.setStackInHand(hand, itemStack);
-        }
-    }
-
-    @Inject(method = "clearActiveItem", at = @At("HEAD"))
-    public void ensureDirty(CallbackInfo ci) {
-        var handItem = this.getStackInHand(this.getActiveHand());
-        if (handItem.getItem() instanceof ShadowItem) {
-            ShadowItem.getOrCreateEntry(this.getWorld(), handItem).markDirty();
         }
     }
 }
