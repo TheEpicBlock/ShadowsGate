@@ -105,7 +105,8 @@ public class ShadowsGate {
         ACTIVE_SERVERS.remove(server);
     }
 
-    public static World tryGetWorldFromStack(ItemStack stack) {
+    @Nullable
+    public static World tryGetWorldFromStack(@NotNull ItemStack stack) {
         var accessor = ((ItemStackAccessor)(Object)stack);
         if (accessor.shadowsgate$getHolder() != null) return accessor.shadowsgate$getHolder().getWorld();
         return getGlobalWorld();

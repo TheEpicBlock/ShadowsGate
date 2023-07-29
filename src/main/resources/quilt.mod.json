@@ -1,6 +1,5 @@
 {
   "schema_version": 1,
-  "mixin": "shadowsgate-common.mixins.json",
   "quilt_loader": {
     "group": "${maven_group}",
     "id": "shadowsgate",
@@ -30,16 +29,18 @@
     },
     "depends": [
       {
-        "id": "fabric",
-        "version": "*"
+        "id": "quilt_loader",
+        "versions": ">=0.19.1"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": ">=7.0.2"
       },
       {
         "id": "minecraft",
-        "version": "1.20.1"
+        "versions": ">=1.20"
       }
     ]
   },
-  "minecraft": {
-
-  }
+  "mixin": "shadowsgate-common.mixins.json"
 }

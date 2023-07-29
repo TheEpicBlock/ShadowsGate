@@ -25,6 +25,7 @@
     "ItemUsageContextAccessor",
     "LithiumCompat",
     "MixinClientPlayNetworkHandler",
+    "OnItemPacket",
     "PatchRemoveOne",
     "PersistentStateManagerAccessor"
   ],

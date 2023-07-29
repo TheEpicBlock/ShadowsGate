@@ -10,6 +10,15 @@ group = project.maven_group
 repositories {
 	maven {
 		url "https://jitpack.io"
+		content {
+			includeGroupByRegex("com\\.github.*")
+		}
+	}
+	maven {
+		url "https://maven.nucleoid.xyz"
+		content {
+			includeGroup("xyz.nucleoid")
+		}
 	}
 }
 
@@ -25,6 +34,14 @@ dependencies {
 
 	modImplementation(libs.lithium) {
 		transitive = false
+	}
+
+	modImplementation(libs.packet.tweaker) {
+		exclude group: 'net.fabricmc', module: 'fabric-loader'
+	}
+
+	include(libs.packet.tweaker) {
+		exclude group: 'net.fabricmc', module: 'fabric-loader'
 	}
 }
 

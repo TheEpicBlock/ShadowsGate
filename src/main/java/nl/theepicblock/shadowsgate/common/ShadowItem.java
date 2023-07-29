@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import nl.theepicblock.shadowsgate.common.mixin.ItemStackAccessor;
 import nl.theepicblock.shadowsgate.common.mixin.ItemUsageContextAccessor;
 import nl.theepicblock.shadowsgate.fabric.NetworkingImpl;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class ShadowItem extends NetworkSyncedItem {
         super(settings);
     }
 
-    public static int getIndex(ItemStack stack) {
+    public static int getIndex(@NotNull ItemStack stack) {
         var nbt = stack.getNbt();
         if (nbt == null) return -1;
         if (!nbt.contains("shadowindex", NbtElement.NUMBER_TYPE)) return -1;
@@ -54,6 +55,26 @@ public class ShadowItem extends NetworkSyncedItem {
             return ShadowEntry.get(serverWorld.getServer(), index);
         } else if (world.isClient) {
             return ShadowEntry.getEntryClient(index);
+        }
+
+        return ShadowEntry.MISSING_ENTRY;
+    }
+
+    @Nullable
+    public static ShadowEntry getEntry(@NotNull World world, @NotNull ItemStack stack) {
+        // TODO maybe make sure this is a shadow item
+        Objects.requireNonNull(world);
+        var index = getIndex(stack);
+        if (world instanceof ServerWorld serverWorld) {
+            if (index == -1) {
+                return null;
+            }
+
+            return ShadowEntry.getExisting(serverWorld.getServer(), index);
+        } else if (world.isClient) {
+            var clientEntry = ShadowEntry.getEntryClient(index);
+            if (clientEntry == ShadowEntry.MISSING_ENTRY) return null;
+            return clientEntry;
         }
 
         return ShadowEntry.MISSING_ENTRY;
