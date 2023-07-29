@@ -137,6 +137,23 @@ public class ShadowItem extends NetworkSyncedItem {
 
     // Methods to copy behaviour of entry item:
 
+    public Text getName(ItemStack srcStack) {
+        World world = ShadowsGate.tryGetWorldFromStack(srcStack);
+        if (world != null) {
+            var entry = getOrCreateEntry(world, srcStack);
+            if (entry == ShadowEntry.MISSING_ENTRY) {
+                return Text.translatable("item.shadowsgate.shadow_item.not_synced");
+            } else if (entry.getStack().isEmpty()) {
+                // Will default to "empty shadowstack"
+                return this.getName();
+            }
+            return entry.getStack().getName();
+        }
+
+        // We're unable to get the proper name because we can't get a world
+        return Text.translatable("item.shadowsgate.shadow_item.unknown");
+    }
+
     @Override
     public void usageTick(World world, LivingEntity user, ItemStack srcStack, int remainingUseTicks) {
         var entry = getOrCreateEntry(world, srcStack);
