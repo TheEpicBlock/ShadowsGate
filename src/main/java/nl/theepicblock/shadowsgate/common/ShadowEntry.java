@@ -125,8 +125,14 @@ public class ShadowEntry extends PersistentState {
 
     @Override
     public void markDirty() {
+        this.markDirty(true);
+    }
+
+    public void markDirty(boolean countChanged) {
         this.dirtynessValue++;
-        this.worldDirty = true;
+        if (countChanged) {
+            this.worldDirty = true;
+        }
         super.markDirty();
     }
 
@@ -196,8 +202,10 @@ public class ShadowEntry extends PersistentState {
     }
 
     public void setStack(ItemStack stack) {
+        if (!ItemStack.areEqual(this.stack, stack)) {
+            this.markDirty(this.stack.getCount() != stack.getCount());
+        }
         this.stack = stack;
-        this.markDirty();
     }
 
     public boolean isUninitialized() {
@@ -233,7 +241,6 @@ public class ShadowEntry extends PersistentState {
                 inv.offHand.set(0, original);
                 if (newItem != this.stack) {
                     this.setStack(newItem);
-                    this.markDirty();
                 }
 
                 yield ret;
@@ -258,7 +265,6 @@ public class ShadowEntry extends PersistentState {
         inv.main.set(inv.selectedSlot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.markDirty();
         }
 
         return v;
@@ -276,10 +282,13 @@ public class ShadowEntry extends PersistentState {
         player.getInventory().setStack(slot, original);
         if (newItem != this.stack) {
             this.setStack(newItem);
-            this.markDirty();
         }
 
         return v;
+    }
+
+    public static ShadowEntry get(MinecraftServer server, int id) {
+        return get(server.getOverworld().getPersistentStateManager(), id);
     }
 
     public static ShadowEntry get(PersistentStateManager manager, int id) {
