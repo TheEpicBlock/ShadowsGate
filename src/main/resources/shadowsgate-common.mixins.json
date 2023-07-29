@@ -6,6 +6,7 @@
   ],
   "mixins": [
     "DispenserBlockAccessor",
+    "DoubleInventoryAccessor",
     "FixComparator",
     "FixComparatorLithium",
     "FixFoxxo",

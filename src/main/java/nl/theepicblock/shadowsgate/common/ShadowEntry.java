@@ -10,15 +10,31 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
+import net.minecraft.world.World;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShadowEntry extends PersistentState {
     public static final ShadowEntry MISSING_ENTRY = new ShadowEntry(true);
     private ItemStack stack = ItemStack.EMPTY;
+    /**
+     * Tracks blocks that contain shadow items, so they can receive an update every time the block updates.
+     * This means that, for example, comparators are properly updated when the shadow stack fills up
+     */
+    private final Map<RegistryKey<World>, ShadowContainingBlockTracker> usedPositions;
+
+    // These are cached so we don't have to instantiate them each time
     private final Slot fakeSlot;
     public final ShadowEntryFakeInventory fakeInv;
 
@@ -26,12 +42,17 @@ public class ShadowEntry extends PersistentState {
     // This is so we don't send useless packets
     public final Object2IntMap<PlayerEntity> dirtynessTracker;
     private int dirtynessValue = 0;
+    /**
+     * Tracks if any blocks containing shadow items still need to be updated.
+     */
+    private boolean worldDirty;
 
     public ShadowEntry() {
         this(false);
     }
 
     public ShadowEntry(boolean locked) {
+        this.usedPositions = new HashMap<>();
         this.fakeInv = new ShadowEntryFakeInventory(this);
         if (locked) {
             this.fakeSlot = new CustomSlot(fakeInv, 0, 0, 0);
@@ -49,6 +70,29 @@ public class ShadowEntry extends PersistentState {
             entry.stack = ItemStack.fromNbt(nbt.getCompound("stack"));
         }
 
+        if (nbt.contains("usedPositions", NbtElement.COMPOUND_TYPE)) {
+            var server = ShadowsGate.getGlobalServer();
+            var usedPositionsMap = nbt.getCompound("usedPositions");
+            for (String dimensionKey : usedPositionsMap.getKeys()) {
+                var dimensionId = Identifier.tryParse(dimensionKey);
+                if (dimensionId == null) {
+                    ShadowsGate.LOGGER.error("Found invalid identifier for dimension: '" + dimensionKey + "'");
+                    entry.markForSaving();
+                    continue;
+                }
+                var registryKey = RegistryKey.of(RegistryKeys.WORLD, dimensionId);
+
+                if (server != null && server.getWorld(registryKey) == null) {
+                    ShadowsGate.LOGGER.warn("Dimension "+dimensionKey+" doesn't appear to exist, skipping these entries");
+                    entry.markForSaving();
+                    continue;
+                }
+
+                var tracker = entry.usedPositions.computeIfAbsent(registryKey, k -> new ShadowContainingBlockTracker(entry));
+                tracker.fromNbt(usedPositionsMap.get(dimensionKey));
+            }
+        }
+
         return entry;
     }
 
@@ -57,6 +101,15 @@ public class ShadowEntry extends PersistentState {
         var innerNbt = new NbtCompound();
         stack.writeNbt(innerNbt);
         nbt.put("stack", innerNbt);
+
+        var usedPositionsMap = new NbtCompound();
+        for (var entry : this.usedPositions.entrySet()) {
+            var dimension = entry.getKey();
+            var positions = entry.getValue();
+
+            usedPositionsMap.put(dimension.getValue().toString(), positions.toNbt());
+        }
+        nbt.put("usedPositions", usedPositionsMap);
         return nbt;
     }
 
@@ -72,7 +125,12 @@ public class ShadowEntry extends PersistentState {
 
     @Override
     public void markDirty() {
-        dirtynessValue++;
+        this.dirtynessValue++;
+        this.worldDirty = true;
+        super.markDirty();
+    }
+
+    public void markForSaving() {
         super.markDirty();
     }
 
@@ -88,6 +146,29 @@ public class ShadowEntry extends PersistentState {
      */
     public void resetDirt(PlayerEntity player) {
         dirtynessTracker.put(player, dirtynessValue);
+    }
+
+    /**
+     * Marks a blockpos as containing a shadow item
+     */
+    public void startTrackingBlockPos(World world, BlockPos pos) {
+        if (!world.isClient)
+            this.usedPositions.computeIfAbsent(world.getRegistryKey(), k -> new ShadowContainingBlockTracker(this)).add(pos);
+    }
+
+    public void updateWorld(MinecraftServer server) {
+        if (!this.worldDirty) return;
+
+        this.usedPositions.forEach((dimension, positions) -> {
+            var world = server.getWorld(dimension);
+            if (world == null) {
+                ShadowsGate.LOGGER.error("Tried updating invalid dimension "+dimension);
+                return;
+            }
+
+            positions.updateBlocks(world);
+        });
+        this.worldDirty = false;
     }
 
     @ClientOnly

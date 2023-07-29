@@ -30,8 +30,9 @@ public class ShadowsGate {
     private static final ArrayList<MinecraftServer> ACTIVE_SERVERS = new ArrayList<>();
 
     public static final Item.Settings SHADOW_ITEM_SETTINGS = new Item.Settings().maxCount(1);
-    public static boolean RenderHack = false;
     public static boolean CLIENT = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+    public static boolean LITHIUM = FabricLoader.getInstance().isModLoaded("lithium");
+    public static boolean RenderHack = false;
 
     public static void init() {
         DispenserBlock.registerBehavior(getShadowItem(), (pointer, stack) -> {
@@ -45,7 +46,6 @@ public class ShadowsGate {
             return stack; // Always keep the stack the same to preserve the shadow item
         });
         ServerTickEvents.END.register(server -> {
-            if ((server.getTicks()+198) % 300 != 0) return;
 
             // Each of our persistent states tracks some values per player
             // This code is to garbage-collect any player who no longer has a shadow item in their inventory
@@ -54,6 +54,10 @@ public class ShadowsGate {
 
             for (var state : loadedStates.values()) {
                 if (state instanceof ShadowEntry e) {
+                    // Whilst we're here, update any comparators that need to be updated
+                    e.updateWorld(server);
+
+                    if ((server.getTicks()+198) % 300 != 0) continue;
                     var iterator = e.dirtynessTracker.keySet().iterator();
                     while (iterator.hasNext()) {
                         var player = iterator.next();
@@ -78,8 +82,14 @@ public class ShadowsGate {
             var clientWorld = ShadowsGateClient.getClientWorld();
             if (clientWorld != null) return clientWorld;
         }
+        var server = getGlobalServer();
+        if (server != null) return server.getOverworld();
+        return null;
+    }
+
+    public static MinecraftServer getGlobalServer() {
         for (var server : ACTIVE_SERVERS) {
-            if (server.isOnThread()) return server.getOverworld();
+            if (server.isOnThread()) return server;
         }
         return null;
     }
