@@ -1,7 +1,7 @@
 {
   "item.shadowsgate.shadow_item": "Empty shadow stack",
-  "item.shadowsgate.shadow_item.not_synced": "Shadow stack",
-  "item.shadowsgate.shadow_item.unknown": "???",
+  "item.shadowsgate.shadow_item.not_synced": "???",
+  "item.shadowsgate.shadow_item.unknown": "Shadow stack",
   "item.shadowsgate.shadow_item.lore": "Shadowed item",
   "item.shadowsgate.shadow_item.lore_advanced": "Shadowed item (id: %s)"
 }
