@@ -135,9 +135,9 @@ public class ShadowItem extends NetworkSyncedItem {
             var entry = getOrCreateEntry(world2, stack);
             if (!entry.getStack().isEmpty() || context.shouldShowAdvancedDetails()) {
                 if (context.shouldShowAdvancedDetails()) {
-                    tooltip.add(Text.translatable("item.shadowsgate.shadow_item.lore_advanced", getIndex(stack)));
+                    tooltip.add(Text.translatable("item.shadowsgate.shadow_item.lore_advanced", getIndex(stack)).formatted(Formatting.GRAY));
                 } else {
-                    tooltip.add(Text.translatable("item.shadowsgate.shadow_item.lore"));
+                    tooltip.add(Text.translatable("item.shadowsgate.shadow_item.lore").formatted(Formatting.GRAY));
                 }
             }
             entry.getStack().getItem().appendTooltip(entry.getStack(), world, tooltip, context);
