@@ -1,7 +1,5 @@
 package nl.theepicblock.shadowsgate.common.mixin;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
@@ -20,9 +18,14 @@ public class FixComparator {
     private static ItemStack getItemStack(ItemStack instance) {
         if (instance.getItem() == ShadowsGate.getShadowItem()) {
             // Use the inner item instead of the shadow item for comparator calculations
-            var entry = ShadowItem.getOrCreateEntry(ShadowsGate.tryGetWorldFromStack(instance), instance);
-            ShadowContainingBlockTracker.ShadowEntriesUsedInComparatorCalculation.add(entry);
-            return entry.getStack();
+            var world = ShadowsGate.tryGetWorldFromStack(instance);
+            if (world != null) {
+                var entry = ShadowItem.getEntry(world, instance);
+                if (entry != null) {
+                    ShadowContainingBlockTracker.ShadowEntriesUsedInComparatorCalculation.add(entry);
+                    return entry.getStack();
+                }
+            }
         }
         return instance;
     }

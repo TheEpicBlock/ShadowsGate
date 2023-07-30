@@ -48,27 +48,30 @@ public class ShadowsGate {
             return stack; // Always keep the stack the same to preserve the shadow item
         });
         ServerTickEvents.END.register(server -> {
+            try {
+                // Each of our persistent states tracks some values per player
+                // This code is to garbage-collect any player who no longer has a shadow item in their inventory
+                var loadedStates = ((PersistentStateManagerAccessor)server.getOverworld().getPersistentStateManager()).getLoadedStates();
+                var playerInvCache = new Object2BooleanOpenHashMap<PlayerEntity>(); // Stores players that have shadowitems in their inventory
 
-            // Each of our persistent states tracks some values per player
-            // This code is to garbage-collect any player who no longer has a shadow item in their inventory
-            var loadedStates = ((PersistentStateManagerAccessor)server.getOverworld().getPersistentStateManager()).getLoadedStates();
-            var playerInvCache = new Object2BooleanOpenHashMap<PlayerEntity>(); // Stores players that have shadowitems in their inventory
+                for (var state : loadedStates.values()) {
+                    if (state instanceof ShadowEntry e) {
+                        // Whilst we're here, update any comparators that need to be updated
+                        e.updateWorld(server);
 
-            for (var state : loadedStates.values()) {
-                if (state instanceof ShadowEntry e) {
-                    // Whilst we're here, update any comparators that need to be updated
-                    e.updateWorld(server);
-
-                    if ((server.getTicks()+198) % 300 != 0) continue;
-                    var iterator = e.dirtynessTracker.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        var player = iterator.next();
-                        var hasShadowItem = playerInvCache.computeIfAbsent(player, player1 -> ((PlayerEntity)player1).getInventory().anyMatch(stack -> stack.getItem() == ShadowsGate.getShadowItem()));
-                        if (player.isRemoved() || !hasShadowItem) {
-                            iterator.remove();
+                        if ((server.getTicks() + 198) % 300 != 0) continue;
+                        var iterator = e.dirtynessTracker.keySet().iterator();
+                        while (iterator.hasNext()) {
+                            var player = iterator.next();
+                            var hasShadowItem = playerInvCache.computeIfAbsent(player, player1 -> ((PlayerEntity)player1).getInventory().anyMatch(stack -> stack.getItem() == ShadowsGate.getShadowItem()));
+                            if (player.isRemoved() || !hasShadowItem) {
+                                iterator.remove();
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                ShadowsGate.LOGGER.error("Failed to tick shadow entries!", e);
             }
         });
     }

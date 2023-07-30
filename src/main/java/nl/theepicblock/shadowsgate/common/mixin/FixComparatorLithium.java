@@ -12,15 +12,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = LithiumStackList.class, remap = false)
+@Mixin(value = LithiumStackList.class)
 public class FixComparatorLithium {
-    @ModifyVariable(method = "calculateSignalStrength(I)I", at = @At(value = "STORE"))
+    @ModifyVariable(method = "calculateSignalStrength(I)I", remap = false, at = @At(value = "STORE"))
     private ItemStack getItemStack(ItemStack instance) {
         if (instance.getItem() == ShadowsGate.getShadowItem()) {
             // Use the inner item instead of the shadow item for comparator calculations
-            var entry = ShadowItem.getOrCreateEntry(ShadowsGate.tryGetWorldFromStack(instance), instance);
-            ShadowContainingBlockTracker.ShadowEntriesUsedInComparatorCalculation.add(entry);
-            return entry.getStack();
+            var world = ShadowsGate.tryGetWorldFromStack(instance);
+            if (world != null) {
+                var entry = ShadowItem.getEntry(world, instance);
+                if (entry != null) {
+                    ShadowContainingBlockTracker.ShadowEntriesUsedInComparatorCalculation.add(entry);
+                    return entry.getStack();
+                }
+            }
         }
         return instance;
     }
