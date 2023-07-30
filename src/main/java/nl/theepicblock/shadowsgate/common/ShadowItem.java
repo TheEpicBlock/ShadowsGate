@@ -203,10 +203,15 @@ public class ShadowItem extends NetworkSyncedItem {
     }
 
     @Override
+    @MarksAsDirty
     public ActionResult useOnBlock(ItemUsageContext context) {
         var entry = getOrCreateEntry(context.getWorld(), context.getStack());
         var newContext = ItemUsageContextAccessor.createItemUsageContext(context.getWorld(), context.getPlayer(), context.getHand(), entry.getStack(), ((ItemUsageContextAccessor)context).callGetHitResult());
-        return entry.execute(context.getPlayer(), context.getHand(), () -> entry.getStack().useOnBlock(newContext));
+        var result = entry.execute(context.getPlayer(), context.getHand(), () -> entry.getStack().useOnBlock(newContext));
+        if (result.isAccepted()) {
+            entry.markDirty();
+        }
+        return result;
     }
 
     @Override
@@ -238,13 +243,19 @@ public class ShadowItem extends NetworkSyncedItem {
         var stack = user.getStackInHand(hand);
         var entry = getOrCreateEntry(world, stack);
         var result = entry.execute(user, hand, () -> entry.getStack().use(world, user, hand));
+        if (result.getValue() != entry.getStack() || result.getResult().isAccepted()) {
+            entry.setStack(result.getValue());
+            entry.markDirty();
+        }
         return new TypedActionResult<>(result.getResult(), stack);
     }
 
     @Override
+    @MarksAsDirty
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         var entry = getOrCreateEntry(world, stack);
         entry.setStack(entry.getStack().finishUsing(world, user));
+        entry.markDirty();
         return stack;
     }
 
@@ -283,9 +294,14 @@ public class ShadowItem extends NetworkSyncedItem {
     }
 
     @Override
+    @MarksAsDirty
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
         var entry = getOrCreateEntry(user.getWorld(), stack);
-        return entry.executeActiveHand(user, stack, () -> entry.getStack().useOnEntity(user, entity, hand));
+        var result = entry.executeActiveHand(user, stack, () -> entry.getStack().useOnEntity(user, entity, hand));
+        if (result.isAccepted()) {
+            entry.markDirty();
+        }
+        return result;
     }
 
     @Override

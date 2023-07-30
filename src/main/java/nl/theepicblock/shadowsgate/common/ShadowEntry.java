@@ -211,7 +211,7 @@ public class ShadowEntry extends PersistentState {
         return stack;
     }
 
-    @MarksAsDirty
+    @MarksAsDirty(onlyInstance = true)
     public void setStack(ItemStack stack) {
         if (!ItemStack.areEqual(this.stack, stack)) {
             this.markDirty(this.stack.getCount() != stack.getCount());
@@ -227,7 +227,7 @@ public class ShadowEntry extends PersistentState {
         return fakeSlot;
     }
 
-    @MarksAsDirty(becauseOf = "execute")
+    @MarksAsDirty(becauseOf = "execute", onlyInstance = true)
     public <T> T executeActiveHand(PlayerEntity player, ItemStack originalShadowItem, Funct<T> r) {
         if (player.getStackInHand(player.getActiveHand()) == originalShadowItem) { // Sanity check
             return execute(player, player.getActiveHand(), r);
@@ -236,7 +236,7 @@ public class ShadowEntry extends PersistentState {
         }
     }
 
-    @MarksAsDirty(becauseOf = "setStack")
+    @MarksAsDirty(becauseOf = "setStack", onlyInstance = true)
     public <T> T execute(PlayerEntity player, Hand hand, Funct<T> r) {
         return switch (hand) {
             case MAIN_HAND -> execute(player, r);
@@ -261,7 +261,7 @@ public class ShadowEntry extends PersistentState {
         };
     }
 
-    @MarksAsDirty(becauseOf = "setStack")
+    @MarksAsDirty(becauseOf = "setStack", onlyInstance = true)
     public <T> T execute(PlayerEntity player, Funct<T> r) {
         var inv = player.getInventory();
         if (!PlayerInventory.isValidHotbarIndex(inv.selectedSlot)) {
@@ -284,7 +284,7 @@ public class ShadowEntry extends PersistentState {
         return v;
     }
 
-    @MarksAsDirty(becauseOf = "setStack")
+    @MarksAsDirty(becauseOf = "setStack", onlyInstance = true)
     public <T> T execute(PlayerEntity player, int slot, Funct<T> r) {
         var original = player.getInventory().getStack(slot);
         if (!(original.getItem() instanceof ShadowItem)) {

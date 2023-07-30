@@ -15,4 +15,9 @@ public @interface MarksAsDirty {
      * Indicated that this function hands things off to another function, which will in turn mark it as dirty
      */
     String becauseOf() default "";
+
+    /**
+     * Indicates that the item is only marked as dirty if the {@link net.minecraft.item.ItemStack} instance changed
+     */
+    boolean onlyInstance() default false;
 }
