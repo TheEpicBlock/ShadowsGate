@@ -32,12 +32,19 @@ public class ShadowEntryFakeInventory implements Inventory {
     }
 
     @Override
+    @MarksAsDirty()
     public ItemStack removeStack(int slot, int amount) {
         var stack = entry.getStack();
-        return slot == 0 && !stack.isEmpty() && amount > 0 ? stack.split(amount) : ItemStack.EMPTY;
+        if (slot == 0 && !stack.isEmpty() && amount > 0) {
+            entry.markDirty();
+            return stack.split(amount);
+        } else {
+            return ItemStack.EMPTY;
+        }
     }
 
     @Override
+    @MarksAsDirty(becauseOf = "ShadowEntry#setStack")
     public ItemStack removeStack(int slot) {
         if (slot == 0) {
             var stack = entry.getStack();
@@ -48,10 +55,16 @@ public class ShadowEntryFakeInventory implements Inventory {
     }
 
     @Override
+    @MarksAsDirty(becauseOf = "ShadowEntry#setStack")
     public void setStack(int slot, ItemStack stack) {
         if (slot == 0) {
             entry.setStack(stack);
         }
+    }
+
+    @Override
+    public boolean isValid(int slot, ItemStack stack) {
+        return ShadowEntry.isValidStack(stack);
     }
 
     @Override

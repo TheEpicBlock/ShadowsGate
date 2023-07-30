@@ -23,7 +23,7 @@
     "ItemRendererMixin",
     "ItemStackAccessor",
     "ItemUsageContextAccessor",
-    "LithiumCompat",
+    "LithiumHopperBehaviour",
     "MixinClientPlayNetworkHandler",
     "OnItemPacket",
     "PatchRemoveOne",

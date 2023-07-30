@@ -14,6 +14,7 @@ import nl.theepicblock.shadowsgate.common.ShadowsGate;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -21,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperBehaviour {
-    private static final ThreadLocal<Boolean> shadowsgate$insertSuccesfull = ThreadLocal.withInitial(() -> false);
+    @Unique
+    private static final ThreadLocal<Boolean> insertSuccessful = ThreadLocal.withInitial(() -> false);
 
     @Shadow
     private static ItemStack transfer(@Nullable Inventory arg, Inventory arg2, ItemStack arg3, int l, @Nullable Direction arg4) {
@@ -67,7 +69,7 @@ public abstract class HopperBehaviour {
             var result = transfer(sourceInventory, destination, shadowEntry.getStack().split(1), direction);
 
             if (result.isEmpty()) {
-                shadowsgate$insertSuccesfull.set(true);
+                insertSuccessful.set(true);
                 shadowEntry.markDirty();
             } else {
                 shadowEntry.setStack(original);
@@ -75,27 +77,27 @@ public abstract class HopperBehaviour {
             // Return the shadow item itself, which should be unaffected
             return toTransfer;
         }
-        shadowsgate$insertSuccesfull.set(false);
+        insertSuccessful.set(false);
         return transfer(sourceInventory, destination, toTransfer, direction);
     }
 
     @Inject(method = "insert", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/inventory/Inventory;setStack(ILnet/minecraft/item/ItemStack;)V"), cancellable = true)
     private static void fixInsert(World world, BlockPos blockPos, BlockState blockState, Inventory inventory, CallbackInfoReturnable<Boolean> cir) {
-        if (shadowsgate$insertSuccesfull.get()) {
+        if (insertSuccessful.get()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "extract(Lnet/minecraft/block/entity/Hopper;Lnet/minecraft/inventory/Inventory;ILnet/minecraft/util/math/Direction;)Z", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/inventory/Inventory;setStack(ILnet/minecraft/item/ItemStack;)V"), cancellable = true)
     private static void fixExtract(Hopper hopper, Inventory inventory, int i, Direction direction, CallbackInfoReturnable<Boolean> cir) {
-        if (shadowsgate$insertSuccesfull.get()) {
+        if (insertSuccessful.get()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "extract(Lnet/minecraft/inventory/Inventory;Lnet/minecraft/entity/ItemEntity;)Z", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/block/entity/HopperBlockEntity;transfer(Lnet/minecraft/inventory/Inventory;Lnet/minecraft/inventory/Inventory;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/math/Direction;)Lnet/minecraft/item/ItemStack;"), cancellable = true)
     private static void fixExtract2(Inventory inventory, ItemEntity itemEntity, CallbackInfoReturnable<Boolean> cir) {
-        if (shadowsgate$insertSuccesfull.get()) {
+        if (insertSuccessful.get()) {
             cir.setReturnValue(true);
         }
     }
