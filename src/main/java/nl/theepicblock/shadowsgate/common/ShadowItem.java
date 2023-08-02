@@ -25,6 +25,7 @@ import nl.theepicblock.shadowsgate.common.mixin.ItemUsageContextAccessor;
 import nl.theepicblock.shadowsgate.fabric.NetworkingImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import java.util.List;
 import java.util.Objects;
@@ -143,13 +144,24 @@ public class ShadowItem extends NetworkSyncedItem {
         return false;
     }
 
+    /**
+     * Called when an action of the player (eg, right-clicking the shadow stack with another item) causes the
+     * contents of the shadow stack to change
+     */
     private static void playerChangedContents(ItemStack stack, ShadowEntry entry, PlayerEntity player) {
+        if (ShadowsGate.CLIENT) {
+            playerChangedContentsInner(stack, entry, player);
+        }
+    }
+
+    @ClientOnly
+    private static void playerChangedContentsInner(ItemStack stack, ShadowEntry entry, PlayerEntity player) {
         if (player.isCreative() && player instanceof ClientPlayerEntity clientPlayer) {
             clientPlayer.networkHandler.sendPacket(NetworkingImpl.createUpdatePacket(getIndex(stack), entry));
         }
     }
 
-    @Override
+        @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         var world2 = world == null ? (((ItemStackAccessor)(Object)stack).shadowsgate$getHolder() == null ? null : ((ItemStackAccessor)(Object)stack).shadowsgate$getHolder().getWorld()) : world;
         if (world2 != null) {
